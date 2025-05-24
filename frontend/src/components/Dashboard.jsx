@@ -1,0 +1,325 @@
+import React, { useState, useEffect, useRef, useContext } from "react";
+import axios from "axios";
+import classnames from "classnames";
+import styles from "./Dashboard.module.css";
+import logo from "../assets/aviator.png";
+import avatar from "../assets/av-1.png";
+import { MdAnimation, MdOutlinePayments } from "react-icons/md";
+import { SiLevelsdotfyi } from "react-icons/si";
+import { FaBars } from "react-icons/fa6";
+import { AiOutlineSafetyCertificate } from "react-icons/ai";
+import Canvas from "./Canvas.jsx";
+import ResultHistory from "./ResultHistory.jsx";
+import BetControls from "./BetControls.jsx";
+import { useSoundContext } from "../context/SoundContext.jsx";
+import { EnginContext } from "../context/EnginContext.jsx";
+
+const Dashboard = () => {
+  const { score, balance, alerts } = useContext(EnginContext);
+  const [sidebar, setSidebar] = useState(false);
+  const [isActive, setIsActive] = useState("all");
+
+  const { toggle, playing, toggleSound, isSound } = useSoundContext();
+
+  const sidebarFunc = () => {
+    setSidebar(!sidebar);
+  };
+
+  return (
+    <>
+      <div className={styles.mainContainer}>
+        <header>
+          <div className={styles.navContainer}>
+            <div className={styles.navLogo}>
+              <img src={logo} alt="Logo" />
+            </div>
+            <div className={styles.navBar}>
+              <div className={styles.navBalance}>
+                <span className={styles.navAmount}>{balance.toFixed(2)}</span>
+                <span className={styles.navCurrency}> INR</span>
+              </div>
+              <div className={styles.navToggler}>
+                <span className={styles.navToggleBtn} onClick={sidebarFunc}>
+                  <FaBars />
+                </span>
+              </div>
+            </div>
+          </div>
+          {sidebar && (
+            <div className={styles.user}>
+              <div className={styles.sidebar}>
+                <div className={styles.section1}>
+                  <div className={styles.avatar}>
+                    <img src={avatar} alt="avatar" />
+                  </div>
+                  <span className={styles.username}>v***7</span>
+                </div>
+                <div className={styles.section2}>
+                  <div className={styles.listMenu}>
+                    <div className={styles.listMenuItem}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="bi bi-volume-down"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zM6.312 6.39 8 5.04v5.92L6.312 9.61A.5.5 0 0 0 6 9.5H4v-3h2a.5.5 0 0 0 .312-.11M12.025 8a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8" />
+                          </svg>
+                        </span>
+                        SOUND
+                      </div>
+                      <div className="checkbox form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="flexSwitchCheckDefault"
+                          checked={isSound}
+                          onChange={toggleSound}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="soundSwitch"
+                        ></label>
+                      </div>
+                    </div>
+                    <div className={styles.listMenuItem}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="bi bi-music-note-beamed"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M6 13c0 1.105-1.12 2-2.5 2S1 14.105 1 13s1.12-2 2.5-2 2.5.896 2.5 2m9-2c0 1.105-1.12 2-2.5 2s-2.5-.895-2.5-2 1.12-2 2.5-2 2.5.895 2.5 2" />
+                            <path
+                              fillRule="evenodd"
+                              d="M14 11V2h1v9zM6 3v10H5V3z"
+                            />
+                            <path d="M5 2.905a1 1 0 0 1 .9-.995l8-.8a1 1 0 0 1 1.1.995V3L5 4z" />
+                          </svg>
+                        </span>
+                        MUSIC
+                      </div>
+                      <div className="checkbox form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="flexSwitchCheckDefault"
+                          checked={playing}
+                          onChange={toggle}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="flexSwitchCheckDefault"
+                        ></label>
+                      </div>
+                    </div>
+                    {/* <div className={styles.listMenuItem}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <MdAnimation />
+                        </span>
+                        ANIMATION
+                      </div>
+                      <div className="checkbox form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="flexSwitchCheckDefault"
+                          checked={isAnimation}
+                          onChange={() => setIsAnimation(!isAnimation)}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="flexSwitchCheckDefault"
+                        ></label>
+                      </div>
+                    </div> */}
+                  </div>
+                </div>
+                <div className={styles.section3}>
+                  <div className={styles.listMenuItem}>
+                    <div className={styles.title}>
+                      <span className={styles.icon}>
+                        <MdOutlinePayments />
+                      </span>
+                      DEPOSIT FUNDS
+                    </div>
+                  </div>
+                  <div className={styles.listMenuItem}>
+                    <div className={styles.title}>
+                      <span className={styles.icon}>
+                        <MdOutlinePayments />
+                      </span>
+                      WITHDRAW FUNDS
+                    </div>
+                  </div>
+                  <div className={styles.listMenuItem}>
+                    <div className={styles.title}>
+                      <span className={styles.icon}>
+                        <MdOutlinePayments />
+                      </span>
+                      TRANSACTION HISTORY
+                    </div>
+                  </div>
+                  <div className={styles.listMenuItem}>
+                    <div className={styles.title}>
+                      <span className={styles.icon}>
+                        <SiLevelsdotfyi />
+                      </span>
+                      LEVEL MANAGEMENT
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.section4}>
+                  <div className={styles.listMenuItem}>
+                    <div className={styles.title}>
+                      <span className={styles.icon}>
+                        <AiOutlineSafetyCertificate />
+                      </span>
+                      PROVABLY FAIR GAME
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </header>
+        {alerts.map((alert, index) => (
+          <div
+            key={index}
+            className={classnames(styles.alertContainer)}
+            style={{
+              top: `${20 + index * 70}px`,
+            }}
+          >
+            <div className={classnames(styles.alert)}>
+              {alert.type === "cashout" && (
+                <div className={styles.cashoutBanner}>
+                  <div className={styles.cashoutText}>
+                    <div className={styles.subtitle}>You have cashed out!</div>
+                    <div className={styles.multiplier}>
+                      {score.current.toFixed(2)}x
+                    </div>
+                  </div>
+                  <div className={styles.cashoutAmount}>
+                    <div className={styles.label}>Win INR</div>
+                    <div className={styles.amount}>{alert.text}</div>
+                  </div>
+                </div>
+              )}
+              {alert.type === "error" && (
+                <div className={styles.error}>
+                  <div className={styles.errorText}>{alert.text}</div>
+                  <div className={styles.errorButton}>x</div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <main>
+          <div className={styles.gameContainer}>
+            <div className={classnames(styles.infoBoard, styles.pt2)}>
+              <app-bets-widget>
+                <div className={styles.betsBlock}>
+                  <div className={styles.betsBlockNav}>
+                    <app-navigation-switcher
+                      className={styles.navigationSwitcherWrapper}
+                    >
+                      <div className={styles.navigationSwitcher}>
+                        <button
+                          className={classnames(styles.tab, {
+                            [styles.active]: isActive === "all",
+                          })}
+                          onClick={() => setIsActive("all")}
+                        >
+                          All Bets
+                        </button>
+                        <button
+                          className={classnames(styles.tab, {
+                            [styles.active]: isActive === "my",
+                          })}
+                          onClick={() => setIsActive("my")}
+                        >
+                          My Bets
+                        </button>
+                        <button
+                          className={classnames(styles.tab, {
+                            [styles.active]: isActive === "top",
+                          })}
+                          onClick={() => setIsActive("top")}
+                        >
+                          Top Bets
+                        </button>
+                      </div>
+                    </app-navigation-switcher>
+                  </div>
+                  <app-all-bets-tab className={styles.dataList}>
+                    <div className={styles.dataItem}>
+                      <app-header className={styles.headerWrapper}>
+                        <div
+                          className={classnames(
+                            styles.allBetsBlock,
+                            styles.pb1,
+                            styles.px2
+                          )}
+                        >
+                          <div>
+                            <div className={styles.textUpperCase}>ALL BETS</div>
+                            <div>179</div>
+                          </div>
+                        </div>
+                        <div className={styles.spacer}></div>
+                        <div className={classnames(styles.legend, styles.mx2)}>
+                          <span className={styles.user}>User</span>
+                          <span className={styles.bet}>
+                            Bet INR <span>X</span>
+                          </span>
+                          <span className={styles.cashOut}>Cash out INR</span>
+                        </div>
+                      </app-header>
+                      <virtual-scroll-viewport
+                        className={styles.virtualScrollViewport}
+                      ></virtual-scroll-viewport>
+                    </div>
+                  </app-all-bets-tab>
+                </div>
+              </app-bets-widget>
+              <app-footer>
+                <div className={classnames(styles.footer, styles.px2)}>
+                  <div className={styles.provablyFairBlock}>
+                    <span>This game is</span>
+                    <div className={styles.provablyFair}>
+                      <div className={styles.icon}></div>
+                      <span className={styles.textProvably}>Provably Fair</span>
+                    </div>
+                  </div>
+                </div>
+              </app-footer>
+            </div>
+            <div className={styles.gamePlay}>
+              <ResultHistory />
+              <div className={styles.stageBoard}>
+                <Canvas />
+              </div>
+              <BetControls />
+            </div>
+          </div>
+        </main>
+      </div>
+    </>
+  );
+};
+
+export default Dashboard;

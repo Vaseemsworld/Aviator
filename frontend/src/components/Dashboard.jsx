@@ -9,13 +9,14 @@ import { SiLevelsdotfyi } from "react-icons/si";
 import { FaBars } from "react-icons/fa6";
 import { AiOutlineSafetyCertificate } from "react-icons/ai";
 import Canvas from "./Canvas.jsx";
-import ResultHistory from "./ResultHistory.jsx";
-import BetControls from "./BetControls.jsx";
+import RoundHistory from "./RoundHistory.jsx";
+import BetControls from "./BetControls/BetControls.jsx";
 import { useSoundContext } from "../context/SoundContext.jsx";
 import { EnginContext } from "../context/EnginContext.jsx";
 
 const Dashboard = () => {
-  const { score, balance, alerts } = useContext(EnginContext);
+  const { score, betState, alerts } = useContext(EnginContext);
+  const balance = betState.balance;
   const [sidebar, setSidebar] = useState(false);
   const [isActive, setIsActive] = useState("all");
 
@@ -187,7 +188,7 @@ const Dashboard = () => {
                       <span className={styles.icon}>
                         <AiOutlineSafetyCertificate />
                       </span>
-                      PROVABLY FAIR GAME
+                      <span>Provably Fair Game</span>
                     </div>
                   </div>
                 </div>
@@ -197,8 +198,11 @@ const Dashboard = () => {
         </header>
         {alerts.map((alert, index) => (
           <div
-            key={index}
-            className={classnames(styles.alertContainer)}
+            key={alert.id}
+            className={classnames(styles.alertContainer, {
+              [styles.leaving]: alert.leaving,
+              [styles.entering]: alert.entering,
+            })}
             style={{
               top: `${20 + index * 70}px`,
             }}
@@ -208,9 +212,7 @@ const Dashboard = () => {
                 <div className={styles.cashoutBanner}>
                   <div className={styles.cashoutText}>
                     <div className={styles.subtitle}>You have cashed out!</div>
-                    <div className={styles.multiplier}>
-                      {score.current.toFixed(2)}x
-                    </div>
+                    <div className={styles.multiplier}>{alert.score}x</div>
                   </div>
                   <div className={styles.cashoutAmount}>
                     <div className={styles.label}>Win INR</div>
@@ -309,7 +311,7 @@ const Dashboard = () => {
               </app-footer>
             </div>
             <div className={styles.gamePlay}>
-              <ResultHistory />
+              <RoundHistory />
               <div className={styles.stageBoard}>
                 <Canvas />
               </div>

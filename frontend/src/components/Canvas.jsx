@@ -69,7 +69,7 @@ const Canvas = () => {
   const crashScore = useRef((Math.random() * (5 - 1 + 1) + 1).toFixed(2)); // it will come from backend
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
-  const { playCrash, playTakeoff, playWin } = useSoundContext();
+  const { playCrash, playTakeoff } = useSoundContext();
 
   const progressRef = useRef(1);
   const loaderImgRotationRef = useRef(0);

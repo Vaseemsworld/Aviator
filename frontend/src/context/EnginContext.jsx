@@ -1,56 +1,188 @@
-import { createContext, useState, useRef, useEffect } from "react";
+import { createContext, useState, useRef, useEffect, useReducer } from "react";
 
 export const EnginContext = createContext();
 
-const EnginProvider = ({ children }) => {
+const BUTTON_STATES = {
+  IDLE: "IDLE",
+  BET_PLACED: "BET_PLACED",
+  WAITING: "WAITING",
+  FLYING: "FLYING",
+};
+const ACTIONS = {
+  // Bet Actions
+  PLACE_BET: "PLACE_BET",
+  CANCEL_BET: "CANCEL_BET",
+  RESET_BET: "RESET_BET",
+  UPDATE_BET: "UPDATE_BET",
+  SET_BET_AMOUNT: "SET_BET_AMOUNT",
+  SET_BUTTON_STATE: "SET_BUTTON_STATE",
+  SET_BET_PLACED: "SET_BET_PLACED",
+  SET_HAS_DEDUCTED_BALANCE: "SET_HAS_DEDUCTED_BALANCE",
+
+  // Balance actions
+  DEDUCT_BALANCE: "DEDUCT_BALANCE",
+  ADD_BALANCE: "ADD_BALANCE",
+  SET_BALANCE: "SET_BALANCE",
+};
+
+const initialState = {
+  balance: 100.0,
+  bet1: {
+    betAmount: "10.00",
+    isPlaced: false,
+    hasDeductedBalance: false,
+    buttonState: BUTTON_STATES.IDLE,
+  },
+  bet2: {
+    betAmount: "10.00",
+    isPlaced: false,
+    hasDeductedBalance: false,
+    buttonState: BUTTON_STATES.IDLE,
+  },
+  alert: null,
+};
+const getDefaultBetState = () => ({
+  buttonState: BUTTON_STATES.IDLE,
+  isPlaced: false,
+  hasDeductedBalance: false,
+});
+const betReducer = (state, action) => {
+  const betKey = action.betKey || "bet1";
+  let balance = state.balance;
+  switch (action.type) {
+    case ACTIONS.PLACE_BET: {
+      const { amount } = action.payload;
+      const numericAmount = parseFloat(amount || "0");
+
+      if (numericAmount > state.balance) {
+        return {
+          ...state,
+          [betKey]: {
+            ...state[betKey],
+            ...getDefaultBetState(),
+          },
+          alert: "LOW_BALANCE",
+        };
+      }
+      balance -= numericAmount;
+      return {
+        ...state,
+        balance: balance,
+        [betKey]: {
+          ...state[betKey],
+          betAmount: amount,
+          isPlaced: true,
+          hasDeductedBalance: true,
+          buttonState: BUTTON_STATES.BET_PLACED,
+        },
+      };
+    }
+
+    case ACTIONS.SET_BET_AMOUNT:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          betAmount: action.payload,
+        },
+      };
+    case ACTIONS.SET_BUTTON_STATE:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          buttonState: action.payload,
+        },
+      };
+    case ACTIONS.SET_BET_PLACED:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          isPlaced: action.payload,
+        },
+      };
+    case ACTIONS.SET_HAS_DEDUCTED_BALANCE:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          hasDeductedBalance: action.payload,
+        },
+      };
+    case ACTIONS.UPDATE_BET:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          ...(action.payload || {
+            buttonState: BUTTON_STATES.BET_PLACED,
+            isPlaced: true,
+            hasDeductedBalance: true,
+          }),
+        },
+      };
+    case ACTIONS.RESET_BET:
+      return {
+        ...state,
+        [betKey]: {
+          ...state[betKey],
+          ...(action.payload || getDefaultBetState()),
+        },
+      };
+
+    // balance operations
+    case ACTIONS.DEDUCT_BALANCE:
+      return {
+        ...state,
+        balance: state.balance - parseFloat(action.payload),
+      };
+    case ACTIONS.ADD_BALANCE:
+      return {
+        ...state,
+        balance: state.balance + parseFloat(action.payload),
+      };
+    case ACTIONS.SET_BALANCE:
+      return {
+        ...state,
+        balance: parseFloat(action.payload),
+      };
+    default:
+      return state;
+  }
+};
+
+const EngineProvider = ({ children }) => {
   const isLoadingRef = useRef(true);
   const score = useRef(1);
   const winningAmount = useRef(0);
   const [flash, setFlash] = useState(false);
 
-  const [balance, setBalance] = useState(100.0);
-  const [betState, setBetState] = useState({
-    betAmount1: "10.00",
-    betAmount2: "10.00",
-    isBet1Placed: false,
-    isBet2Placed: false,
-    hasDeductedBalance1: false,
-    hasDeductedBalance2: false,
-    buttonState1: "IDLE",
-    buttonState2: "IDLE",
-  });
+  const [betState, dispatchBet] = useReducer(betReducer, initialState);
   const [alerts, setAlerts] = useState([]);
-  const timeoutRef = useRef(new Map());
-  const placeBet = (betKey, amount) => {
-    const numericAmount = parseFloat(amount);
-    if (balance < numericAmount) {
-      setBetState((prev) => ({
-        ...prev,
-        [`buttonState${betKey}`]: "IDLE",
-        [`isBet${betKey}Placed`]: false,
-      }));
-      return { error: "LOW_BALANCE" };
-    }
 
-    setBalance((prev) => prev - numericAmount);
-    setBetState((prev) => ({
-      ...prev,
-      [`buttonState${betKey}`]: "BET_PLACED",
-      [`hasDeductedBalance${betKey}`]: true,
-      [`isBet${betKey}Placed`]: true,
-    }));
+  const timeoutRef = useRef(new Map());
+
+  const placeBet = (betKey, amount) => {
+    dispatchBet({
+      type: ACTIONS.PLACE_BET,
+      betKey,
+      payload: { amount },
+    });
   };
 
   const cancelBet = (betKey, amount) => {
-    if (betState[`hasDeductedBalance${betKey}`]) {
-      setBalance((prev) => prev + parseFloat(amount));
+    if (betState[betKey].hasDeductedBalance) {
+      dispatchBet({
+        type: ACTIONS.ADD_BALANCE,
+        payload: parseFloat(amount),
+      });
     }
-    setBetState((prev) => ({
-      ...prev,
-      [`buttonState${betKey}`]: "IDLE",
-      [`isBet${betKey}Placed`]: false,
-      [`hasDeductedBalance${betKey}`]: false,
-    }));
+    dispatchBet({
+      type: ACTIONS.RESET_BET,
+      betKey,
+      payload: getDefaultBetState(),
+    });
   };
 
   const cashOut = (
@@ -62,115 +194,48 @@ const EnginProvider = ({ children }) => {
     handleAlertMessage
   ) => {
     const winnings = parseFloat(amount) * score.current;
-    setBalance((prev) => prev + winnings);
+    dispatchBet({
+      type: ACTIONS.ADD_BALANCE,
+      payload: winnings,
+    });
     winningAmount.current = winnings;
     playWin();
     handleAlertMessage("CASHOUT");
-    setButtonState(betKey, "IDLE");
-    setBetState((prev) => ({
-      ...prev,
-      [`buttonState${betKey}`]: "IDLE",
-      [`isBet${betKey}Placed`]: false,
-      [`hasDeductedBalance${betKey}`]: false,
-    }));
+    dispatchBet({
+      type: ACTIONS.RESET_BET,
+      betKey,
+      payload: getDefaultBetState(),
+    });
   };
-
-  const setButtonState = (betKey, state) => {
-    setBetState((prev) => ({ ...prev, [`buttonState${betKey}`]: state }));
-  };
-
-  // useEffect(() => {
-  //   if (syncedIsLoading) {
-  //     if (buttonState === "WAITING") {
-  //       if (!hasDeductedBalance && balance >= numValue) {
-  //         setButtonState("BET_PLACED");
-  //         setBalance((prev) => prev - numValue);
-  //         setHasDeductedBalance(true);
-  //       } else {
-  //         handleAlertMessage("LOW_BALANCE");
-  //         setButtonState("IDLE");
-  //       }
-  //     } else if (buttonState === "FLYING") {
-  //       setButtonState("IDLE");
-  //       setIsBetPlaced(false);
-  //       setHasDeductedBalance(false);
-  //     }
-  //   } else {
-  //     if (buttonState === "BET_PLACED") {
-  //       setButtonState("FLYING");
-  //       setIsBetPlaced(true);
-  //     }
-  //     setFlash(true);
-  //     const timeout = setTimeout(() => {
-  //       setFlash(false);
-  //     }, 200);
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [syncedIsLoading]);
-
-  // const handleBetBtn = () => {
-  //   switch (buttonState) {
-  //     case "IDLE":
-  //       if (syncedIsLoading) {
-  //         if (balance >= numValue) {
-  //           setButtonState("BET_PLACED");
-  //           setBalance((prev) => prev - numValue);
-  //           setHasDeductedBalance(true);
-  //         } else {
-  //           handleAlertMessage("LOW_BALANCE");
-  //         }
-  //       } else {
-  //         setButtonState("WAITING");
-  //       }
-  //       break;
-  //     case "BET_PLACED":
-  //       if (syncedIsLoading) {
-  //         if (hasDeductedBalance) {
-  //           setBalance((prev) => prev + numValue);
-  //           setHasDeductedBalance(false);
-  //         }
-  //       }
-  //       setButtonState("IDLE");
-  //       break;
-  //     case "FLYING":
-  //       if (!syncedIsLoading) {
-  //         setBalance((prev) => prev + numValue * score.current);
-  //         setButtonState("IDLE");
-  //         setIsBetPlaced(false);
-  //         winningAmount.current = numValue * score.current;
-  //         playWin();
-  //         handleAlertMessage("CASHOUT");
-  //         setHasDeductedBalance(false);
-  //       }
-  //       break;
-  //     case "WAITING":
-  //       if (!syncedIsLoading) {
-  //         setButtonState("IDLE");
-  //       }
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
 
   const addAlert = (alert) => {
     const id = Date.now() + Math.random();
     const alertWithId = { ...alert, id };
 
-    // if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
     setAlerts((prev) => [...prev, alertWithId]);
 
+    setTimeout(() => {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, entering: false } : a))
+      );
+    }, 300);
+
     const timeoutId = setTimeout(() => {
-      setAlerts((prev) => prev.filter((a) => a.id !== id));
-      timeoutRef.current.delete();
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, leaving: true } : a))
+      );
+      setTimeout(() => {
+        setAlerts((prev) => prev.filter((a) => a.id !== id));
+        timeoutRef.current.delete(id);
+      }, 500);
     }, 3000);
     timeoutRef.current.set(id, timeoutId);
   };
   const handleAlertMessage = (state) => {
     if (state === "CASHOUT") {
       const message = `${winningAmount.current.toFixed(2)}`;
-      addAlert({ type: "cashout", text: message });
+      const scoreAtCashout = score.current.toFixed(2);
+      addAlert({ type: "cashout", text: message, score: scoreAtCashout });
     } else if (state === "LOW_BALANCE") {
       const message = `Insufficient Balance`;
       addAlert({ type: "error", text: message });
@@ -184,30 +249,23 @@ const EnginProvider = ({ children }) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  //   timeoutRef.current = null;
-  //   setAlerts([]);
-  // }, [isLoadingRef.current]);
-
   return (
     <EnginContext.Provider
       value={{
         isLoadingRef,
         score,
-        balance,
-        setBalance,
         flash,
         setFlash,
         betState,
-        setBetState,
+        ACTIONS,
+        BUTTON_STATES,
         placeBet,
         cancelBet,
         cashOut,
-        setButtonState,
         alerts,
         handleAlertMessage,
         winningAmount,
+        dispatchBet,
       }}
     >
       {children}
@@ -215,4 +273,4 @@ const EnginProvider = ({ children }) => {
   );
 };
 
-export default EnginProvider;
+export default EngineProvider;

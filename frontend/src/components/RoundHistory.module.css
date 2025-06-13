@@ -1,0 +1,134 @@
+.roundHistory {
+  min-height: 22px;
+  max-height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.stats {
+  height: 22px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+.payoutWrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.payoutBlock {
+  display: flex;
+}
+.payoutBlock .payout {
+  margin-right: 5px;
+  margin-right: 4px;
+  margin-left: 1px;
+  z-index: 1;
+}
+.payout .payoutValue {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 4px;
+  border-radius: 13px;
+  background-color: #0a0a0a;
+  font-weight: 700;
+}
+
+.buttonBlock span {
+  line-height: 0;
+}
+
+.dropdownToggle {
+  margin-left: 6px;
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 22px;
+  border-radius: 13px;
+  border: 1px solid #414148;
+  background: #252528;
+  cursor: pointer;
+}
+.dropdownToggle:hover {
+  color: red;
+}
+.trigger {
+  display: flex;
+  padding: 4px 4px 3px 4px;
+  font-size: 16px;
+}
+.trigger .historyIcon {
+  margin-right: 2px;
+}
+
+.dropdownMenu {
+  width: 100%;
+  right: auto;
+  bottom: auto;
+  position: absolute;
+  z-index: 3;
+  display: none;
+  float: left;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: #212529;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+}
+.dropdownMenu.show {
+  display: block;
+  background-color: initial;
+  color: inherit;
+  border: unset;
+  margin: -26px 0 0;
+  padding: 0;
+}
+.wrapper {
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 2px 20px #00000080;
+  width: 100%;
+  margin: 0 5px;
+  background-color: #1f2128;
+}
+.wrapper .header {
+  height: 32px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 14px;
+}
+.wrapper .header .text {
+  margin-left: 10px;
+}
+.wrapper .payoutBlock {
+  background-color: #262830;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+  border-radius: 0 0 16px 16px;
+  font-size: 12px;
+}
+.wrapper .payoutBlock .payout {
+  margin: 3px;
+}
+.wrapper .payoutBlock .payout .payoutValue {
+  padding: 2px 4px 2.5px 4px;
+}

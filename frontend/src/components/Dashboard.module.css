@@ -1,4 +1,4 @@
-.loadingScreen{
+.loadingScreen {
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -7,22 +7,26 @@
   background-color: #000;
   color: #fff;
 }
-body{
-  font-family: 'Arial', sans-serif;
+body {
+  font-family: "Arial", sans-serif;
 }
-body,button{
+body,
+button {
   outline: none !important;
 }
-button,select{
+button,
+select {
   text-transform: none;
 }
-body,button,body input,body textarea{
+body,
+button,
+body input,
+body textarea {
   outline: none;
 }
-.mainContainer{
+.mainContainer {
   min-width: 290px;
 }
-
 
 .navContainer {
   display: flex;
@@ -87,8 +91,8 @@ header .user {
 
 .sidebar {
   z-index: 9;
-  background: #383A3E;
-  color: #bbbbbb;
+  background: #383a3e;
+  color: #ffffff;
   position: absolute;
   top: 0;
   right: 0;
@@ -109,7 +113,7 @@ header .user {
 }
 
 .section1 {
-  background-color: #383A3E;
+  background-color: #383a3e;
   color: #fff;
   padding: 8px;
   display: flex;
@@ -169,23 +173,39 @@ header .user {
   box-shadow: none;
 }
 
- /* alert section */
+/* alert section */
 .alertContainer {
   position: absolute;
   top: 20px;
   left: 50%;
-  width: 320px; 
+  width: 320px;
   transform: translateX(-50%);
   color: white;
   padding: 8px 12px;
-  border-radius: 8px; 
+  border-radius: 8px;
   font-weight: bold;
   z-index: 9;
-  opacity: 0;
-  animation: slideIn 0.5s ease forwards, slideOut 0.5s 2.5s ease forwards;
-  transition: top 0.3s ease;
+  opacity: 1;
+  transition: top 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
-.error{
+.alertContainer.entering {
+  animation: slideIn 0.3s ease;
+}
+.alertContainer.leaving {
+  opacity: 0;
+  transform: translate(-50%, -40px);
+}
+@keyframes slideIn {
+  from {
+    transform: translate(-50%, -40px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+.error {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -194,8 +214,8 @@ header .user {
   padding: 10px 12px;
   border-radius: 10px;
 }
-.errorButton{
- color: #c6c6c6;
+.errorButton {
+  color: #c6c6c6;
 }
 .cashoutBanner {
   display: flex;
@@ -256,32 +276,9 @@ header .user {
   color: white;
 }
 
-
-@keyframes slideIn {
-  from {
-    transform: translate(-50%, 100px);
-    opacity: 0;
-  }
-  to {
-    transform: translate(-50%,0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translate(-50%,0);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-50%,-100px);
-    opacity: 0;
-  }
-}
-
 /* game container */
 
-.gameContainer{
+.gameContainer {
   background-color: #0e0e0e;
   color: #fff;
   width: 100%;
@@ -290,7 +287,7 @@ header .user {
   flex-direction: row;
   overflow: hidden;
 }
-.gamePlay{
+.gamePlay {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -299,7 +296,7 @@ header .user {
   padding: 0 5px 5px;
 }
 
-.resultHistory{
+.roundHistory {
   min-height: 22px;
   max-height: 22px;
   display: flex;
@@ -308,7 +305,7 @@ header .user {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-.gamePlay .stats{
+.gamePlay .stats {
   height: 22px;
   width: 100%;
   display: flex;
@@ -318,23 +315,23 @@ header .user {
   font-size: 12px;
 }
 
-.payoutWrapper{
+.payoutWrapper {
   display: flex;
   align-items: center;
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
-.payoutBlock{
+.payoutBlock {
   display: flex;
 }
-.payoutBlock .payout{
+.payoutBlock .payout {
   margin-right: 5px;
   margin-right: 4px;
   margin-left: 1px;
   z-index: 1;
 }
-.payout .payoutValue{
+.payout .payoutValue {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -344,13 +341,13 @@ header .user {
   font-weight: 700;
 }
 
-.buttonBlock span{
+.buttonBlock span {
   line-height: 0;
 }
 
-.dropdownToggle{
+.dropdownToggle {
   margin-left: 6px;
-  position:relative;
+  position: relative;
   z-index: 4;
   display: flex;
   align-items: center;
@@ -362,20 +359,19 @@ header .user {
   background: #252528;
   cursor: pointer;
 }
-.dropdownToggle:hover{
+.dropdownToggle:hover {
   color: red;
 }
-.trigger{
+.trigger {
   display: flex;
   padding: 4px 4px 3px 4px;
   font-size: 16px;
 }
-.trigger .historyIcon{
+.trigger .historyIcon {
   margin-right: 2px;
 }
 
-
-.dropdownMenu{
+.dropdownMenu {
   width: 100%;
   right: auto;
   bottom: auto;
@@ -385,17 +381,17 @@ header .user {
   float: left;
   min-width: 10rem;
   padding: 0.5rem 0;
-  margin: .125rem 0 0;
+  margin: 0.125rem 0 0;
   font-size: 1rem;
   color: #212529;
   text-align: left;
   list-style: none;
   background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid rgba(0,0,0,.15);
-  border-radius: .25rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
 }
-.dropdownMenu.show{
+.dropdownMenu.show {
   display: block;
   background-color: initial;
   color: inherit;
@@ -403,24 +399,24 @@ header .user {
   margin: -26px 0 0;
   padding: 0;
 }
-.wrapper{
+.wrapper {
   border-radius: 0 0 16px 16px;
   box-shadow: 0 2px 20px #00000080;
   width: 100%;
   margin: 0 5px;
   background-color: #1f2128;
 }
-.wrapper .header{
+.wrapper .header {
   height: 32px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: 14px;
 }
-.wrapper .header .text{
+.wrapper .header .text {
   margin-left: 10px;
 }
-.wrapper .payoutBlock{
+.wrapper .payoutBlock {
   background-color: #262830;
   display: flex;
   flex-wrap: wrap;
@@ -428,16 +424,16 @@ header .user {
   border-radius: 0 0 16px 16px;
   font-size: 12px;
 }
-.wrapper .payoutBlock .payout{
+.wrapper .payoutBlock .payout {
   margin: 3px;
 }
-.wrapper .payoutBlock .payout .payoutValue{
+.wrapper .payoutBlock .payout .payoutValue {
   padding: 2px 4px 2.5px 4px;
 }
 
 /* stage Board */
 
-.stageBoard{
+.stageBoard {
   height: 100%;
   position: relative;
   background-color: #000;
@@ -446,10 +442,8 @@ header .user {
   overflow: hidden;
 }
 
-
-
 /* info board */
-.infoBoard{
+.infoBoard {
   height: 100%;
   width: 100%;
   flex-grow: 0;
@@ -458,26 +452,26 @@ header .user {
   display: flex;
   flex-direction: column;
 }
-.pt2{
+.pt2 {
   padding-top: 10px;
 }
 
-app-bets-widget{
+app-bets-widget {
   display: flex;
   width: inherit;
   height: 100%;
   min-height: 0;
 }
-.betsBlock{
+.betsBlock {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background:#1b1c1d;
+  background: #1b1c1d;
   border-radius: 10px 10px 0 0;
 }
 
-.betsBlock .betsBlockNav{
+.betsBlock .betsBlockNav {
   min-height: 24px;
   min-width: 24px;
   font-size: 12px;
@@ -487,28 +481,28 @@ app-bets-widget{
   align-items: center;
   justify-content: center;
 }
-.betsBlock .betsBlockNav .navigationSwitcherWrapper{
+.betsBlock .betsBlockNav .navigationSwitcherWrapper {
   height: 24px;
 }
-.betsBlock .betsBlockNav .navigationSwitcher{
+.betsBlock .betsBlockNav .navigationSwitcher {
   height: 100%;
   background: #141516;
   border-radius: 10px;
   border: solid 1px #141516;
   position: relative;
 }
-.navigationSwitcher button{
+.navigationSwitcher button {
   width: 100px;
 }
-.navigationSwitcher .tab.active{
+.navigationSwitcher .tab.active {
   color: #fff;
   cursor: default;
   transform: scale(1.02);
-  background: rgb(44,45,48);
+  background: rgb(44, 45, 48);
   border-radius: 10px;
-  transition: transform 0.5s ease,background 0.5s ease;
+  transition: transform 0.5s ease, background 0.5s ease;
 }
-.navigationSwitcher .tab{
+.navigationSwitcher .tab {
   height: 100%;
   position: relative;
   text-align: center;
@@ -519,70 +513,69 @@ app-bets-widget{
   padding: 0;
   transition: color 0.5s ease;
 }
-.navigationSwitcher .tab:hover{
+.navigationSwitcher .tab:hover {
   color: #f00;
 }
-.betsBlock .dataList{
+.betsBlock .dataList {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
 }
-.betsBlock .dataList .dataItem{
+.betsBlock .dataList .dataItem {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
-.allBetsBlock{
+.allBetsBlock {
   font-size: 14px;
   line-height: 1.2;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.px2{
+.px2 {
   padding-right: 10px;
   padding-left: 10px;
 }
-.pb1{
+.pb1 {
   padding-bottom: 5px;
 }
-.textUpperCase{
+.textUpperCase {
   text-transform: uppercase;
 }
-.spacer{
+.spacer {
   height: 2px;
   background-color: #141516;
 }
-.legend{
+.legend {
   font-size: 11px;
   color: #7b7b7b;
   display: flex;
   align-items: center;
-
 }
-.mx2{
+.mx2 {
   margin-right: 10px;
   margin-left: 10px;
 }
-.legend .user{
+.legend .user {
   width: 19%;
 }
-.legend .bet{
+.legend .bet {
   min-width: 35%;
   text-align: right;
   white-space: nowrap;
 }
-.legend .bet span{
+.legend .bet span {
   padding-left: 10px;
 }
-.legend .cashOut{
+.legend .cashOut {
   flex: 1;
   text-align: right;
   white-space: nowrap;
 }
 
-.virtualScrollViewport{
+.virtualScrollViewport {
   margin: 0 0 0 5px;
   scrollbar-width: thin;
   overflow-y: scroll;
@@ -597,13 +590,13 @@ app-bets-widget{
 }
 
 /* footer */
-app-footer{
+app-footer {
   width: 100%;
   display: flex;
   min-height: 25px;
   max-height: 25px;
 }
-.footer{
+.footer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -615,45 +608,46 @@ app-footer{
   color: #5e6269;
   padding: 2px 0 3px 0;
 }
-.provablyFairBlock{
+.provablyFairBlock {
   display: flex;
   height: 16px;
 }
-.provablyFair{
+.provablyFair {
   display: flex;
   align-items: center;
 }
-.provablyFair .icon{
-  background: url('../assets/icon-provabyfair.71eb97eaadfab595.svg') no-repeat center center/contain;;
+.provablyFair .icon {
+  background: url("../assets/icon-provabyfair.71eb97eaadfab595.svg") no-repeat
+    center center/contain;
   width: 14px;
   height: 16px;
   margin: 0 4px 0 6px;
 }
-.textProvably{
+.textProvably {
   font-size: 12px;
   color: #bbbfc5;
   line-height: 1px;
 }
 
-@media(min-width:992.01px){
-  .infoBoard{
+@media (min-width: 992.01px) {
+  .infoBoard {
     min-width: 370px;
     max-width: 370px;
   }
 }
 
-@media(max-width:992px){
-  .gameContainer{
+@media (max-width: 992px) {
+  .gameContainer {
     flex-direction: column-reverse;
     padding-left: 5px;
     padding-right: 5px;
     height: auto;
   }
-  .stageBoard{
+  .stageBoard {
     height: calc(40vh - 59px) !important;
     min-height: 200px !important;
   }
-  .infoBoard{
+  .infoBoard {
     height: 80vh;
     padding-left: 0;
     padding-top: 20px !important;

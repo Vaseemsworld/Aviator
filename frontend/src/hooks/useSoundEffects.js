@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import bgmusic from "../assets/bg_music.mp3";
 import sounds from "../assets/sprite_audio.mp3";
 
@@ -19,9 +19,9 @@ const useSoundEffects = () => {
   const startTimeRef = useRef(0);
   const pausedTimeRef = useRef(0);
 
-  useEffect(() =>{
+  useEffect(() => {
     isSoundRef.current = isSound;
-  },[isSound]);
+  }, [isSound]);
 
   useEffect(() => {
     // Initialize AudioContext
@@ -39,7 +39,7 @@ const useSoundEffects = () => {
 
         bgMusicBufferRef.current = bgBuffer;
         soundBufferRef.current = soundBuffer;
-      } catch (err) {
+      } catch {
         console.log("Error loading Audio");
       }
     };
@@ -115,9 +115,9 @@ const useSoundEffects = () => {
       console.error("Audio toggle failed:", err);
     }
   };
-  const toggleSound = () =>{
+  const toggleSound = () => {
     setIsSound(!isSound);
-  }
+  };
   return {
     toggle,
     playing,

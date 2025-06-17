@@ -25,13 +25,29 @@
   overflow: hidden;
 }
 .payoutBlock {
+  position: relative;
   display: flex;
 }
 .payoutBlock .payout {
-  margin-right: 5px;
   margin-right: 4px;
   margin-left: 1px;
   z-index: 1;
+  transition: transform 1s ease, opacity 1s ease;
+  will-change: transform;
+}
+
+.payoutBlock .animateSlideIn {
+  animation: slideIn 1s ease-out;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px) scale(2);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 .payout .payoutValue {
   display: flex;

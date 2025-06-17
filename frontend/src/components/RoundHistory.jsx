@@ -10,15 +10,11 @@ const RoundHistory = () => {
   const { score, isLoadingRef } = useContext(EnginContext);
   const syncedIsLoading = useSyncedRefWithRAF(isLoadingRef);
 
-  // const roundArray = [
-  //   3.56, 3.34, 64.34, 1.22, 1.53, 1.0, 2.65, 8.34, 3.64, 7.54, 1.11, 8.43,
-  //   3.56, 34.53, 334.53, 6.22, 4.53, 1.0, 2.65, 4.34, 5.64, 7.54,
-  // ];
   const generateRandomRound = () => {
     const rand = Math.random();
-    if (rand < 0.75) {
+    if (rand < 0.8) {
       return +(1 + Math.random() * 2).toFixed(2);
-    } else if (rand < 0.9) {
+    } else if (rand < 0.95) {
       return +(2 + Math.random() * 8).toFixed(2);
     } else {
       return +(10 + Math.random() * 290).toFixed(2);
@@ -33,6 +29,8 @@ const RoundHistory = () => {
   const isFirstRender = useRef(true);
 
   const roundResult = score.current;
+  const [newRoundIndex, setNewRoundIndex] = useState(null);
+
   const arrowButton = () => {
     setIsArrowUp((prev) => !prev);
   };
@@ -40,8 +38,13 @@ const RoundHistory = () => {
   const addNewResult = (newResult) => {
     setResults((prevResults) => {
       const updatedResult = [newResult, ...prevResults];
+      setNewRoundIndex(0);
       return updatedResult.slice(0, 40);
     });
+
+    setTimeout(() => {
+      setNewRoundIndex(null);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -75,8 +78,14 @@ const RoundHistory = () => {
 
   const renderPayouts = () => {
     return results.map((roundNum, index) => {
+      const isNew = index === newRoundIndex;
       return (
-        <div className={styles.payout} key={index}>
+        <div
+          className={classnames(styles.payout, {
+            [styles.animateSlideIn]: isNew,
+          })}
+          key={index}
+        >
           <div
             className={styles.payoutValue}
             style={{ color: getRoundColor(roundNum) }}

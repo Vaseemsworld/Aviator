@@ -1,4 +1,5 @@
 import { createContext, useState, useRef, useEffect, useReducer } from "react";
+import useSoundEffects from "../hooks/useSoundEffects";
 
 export const EnginContext = createContext();
 
@@ -18,6 +19,8 @@ const ACTIONS = {
   SET_BUTTON_STATE: "SET_BUTTON_STATE",
   SET_BET_PLACED: "SET_BET_PLACED",
   SET_HAS_DEDUCTED_BALANCE: "SET_HAS_DEDUCTED_BALANCE",
+  SET_AUTO_BET: "SET_AUTO_BET",
+  SET_AUTO_CASHOUT: "SET_AUTO_CASHOUT",
 
   // Balance actions
   DEDUCT_BALANCE: "DEDUCT_BALANCE",
@@ -31,12 +34,16 @@ const initialState = {
     betAmount: "10.00",
     isPlaced: false,
     hasDeductedBalance: false,
+    autoBet: false,
+    autoCashout: false,
     buttonState: BUTTON_STATES.IDLE,
   },
   bet2: {
     betAmount: "10.00",
     isPlaced: false,
     hasDeductedBalance: false,
+    autoBet: false,
+    autoCashout: false,
     buttonState: BUTTON_STATES.IDLE,
   },
   alert: null,
@@ -50,7 +57,7 @@ const betReducer = (state, action) => {
   const betKey = action.betKey || "bet1";
   let balance = state.balance;
   switch (action.type) {
-    case ACTIONS.PLACE_BET: {
+    case ACTIONS.PLACE_BET:
       const { amount } = action.payload;
       const numericAmount = parseFloat(amount || "0");
 
@@ -76,8 +83,6 @@ const betReducer = (state, action) => {
           buttonState: BUTTON_STATES.BET_PLACED,
         },
       };
-    }
-
     case ACTIONS.SET_BET_AMOUNT:
       return {
         ...state,
@@ -130,6 +135,16 @@ const betReducer = (state, action) => {
           ...(action.payload || getDefaultBetState()),
         },
       };
+    case ACTIONS.SET_AUTO_BET:
+      return {
+        ...state,
+        [betKey]: { ...state[betKey], autoBet: action.payload },
+      };
+    case ACTIONS.SET_AUTO_CASHOUT:
+      return {
+        ...state,
+        [betKey]: { ...state[betKey], autoCashout: action.payload },
+      };
 
     // balance operations
     case ACTIONS.DEDUCT_BALANCE:
@@ -163,6 +178,8 @@ const EngineProvider = ({ children }) => {
 
   const timeoutRef = useRef(new Map());
 
+  const { playWin } = useSoundEffects();
+
   const placeBet = (betKey, amount) => {
     dispatchBet({
       type: ACTIONS.PLACE_BET,
@@ -185,14 +202,7 @@ const EngineProvider = ({ children }) => {
     });
   };
 
-  const cashOut = (
-    betKey,
-    amount,
-    score,
-    playWin,
-    winningAmount,
-    handleAlertMessage
-  ) => {
+  const cashOut = (betKey, amount, score) => {
     const winnings = parseFloat(amount) * score.current;
     dispatchBet({
       type: ACTIONS.ADD_BALANCE,
@@ -243,9 +253,10 @@ const EngineProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const timeOutRefCurrent = timeoutRef.current;
     return () => {
-      timeoutRef.current.forEach((timeout) => clearTimeout(timeout));
-      timeoutRef.current.clear();
+      timeOutRefCurrent.forEach((timeout) => clearTimeout(timeout));
+      timeOutRefCurrent.clear();
     };
   }, []);
 
@@ -264,7 +275,6 @@ const EngineProvider = ({ children }) => {
         cashOut,
         alerts,
         handleAlertMessage,
-        winningAmount,
         dispatchBet,
       }}
     >

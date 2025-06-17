@@ -1,9 +1,16 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import classnames from "classnames";
 import styles from "./BetControls.module.css";
-import { handleChange, handleBlur } from "./utils";
+import { handleIncrement, handleDecrement, handleBlur } from "./utils";
 import { EnginContext } from "../../context/EnginContext";
 import useSyncedRefWithRAF from "../../hooks/useSyncedRefWithRAF";
+
+const handleChange = (e, setValue) => {
+  const value = e.target.value;
+  if (/^\d*\.?\d*$/.test(value)) {
+    setValue(value);
+  }
+};
 
 export const AutoBetToggle = ({
   isAutoActive,
@@ -49,12 +56,38 @@ export const AutoBetToggle = ({
   );
 };
 
-const AutoSection = ({ betKey, isAutoActive }) => {
-  const [isAutoBetOn, setIsAutoBetOn] = useState(false);
-  const [isAutoCashOut, setIsAutoCashOut] = useState(false);
-  const [cashOutNumber, setCashOutNumber] = useState("1.00");
-  const { isLoadingRef, betState, BUTTON_STATES } = useContext(EnginContext);
-  const syncedLoading = useSyncedRefWithRAF(isLoadingRef);
+const AutoSection = ({
+  betKey,
+  isAutoActive,
+  autoCashPoint,
+  setAutoCashPoint,
+}) => {
+  const {
+    isLoadingRef,
+    placeBet,
+    betState,
+    dispatchBet,
+    ACTIONS,
+    handleAlertMessage,
+  } = useContext(EnginContext);
+  const isAutoCashOut = betState[betKey].autoCashout;
+  const isAutoBetOn = betState[betKey].autoBet;
+  const buttonState = betState[betKey].buttonState;
+  const syncedIsLoading = useSyncedRefWithRAF(isLoadingRef);
+
+  useEffect(() => {
+    if (syncedIsLoading) {
+      const bet = betState[betKey];
+      if (bet.autoBet && !bet.isPlaced) {
+        if (bet.betAmount > betState.balance) {
+          handleAlertMessage("LOW_BALANCE");
+          dispatchBet({ type: ACTIONS.SET_AUTO_BET, betKey, payload: false });
+          return;
+        }
+        placeBet(betKey, bet.betAmount);
+      }
+    }
+  }, [syncedIsLoading]);
 
   return (
     <div
@@ -77,7 +110,13 @@ const AutoSection = ({ betKey, isAutoActive }) => {
                       type="checkbox"
                       role="switch"
                       checked={isAutoBetOn}
-                      onChange={(e) => setIsAutoBetOn(e.target.checked)}
+                      onChange={(e) =>
+                        dispatchBet({
+                          type: ACTIONS.SET_AUTO_BET,
+                          betKey,
+                          payload: e.target.checked,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -85,7 +124,11 @@ const AutoSection = ({ betKey, isAutoActive }) => {
             </div>
           </div>
           {/* Auto Cash Out */}
-          <div className={styles.cashOutBlock}>
+          <div
+            className={classnames(styles.cashOutBlock, {
+              [styles.disable]: buttonState !== "IDLE",
+            })}
+          >
             <div className={styles.cashOutSwitcher}>
               <label className={styles.labelText}>Auto Cash Out</label>
               <div className={styles.cashOutSwitch}>
@@ -96,7 +139,13 @@ const AutoSection = ({ betKey, isAutoActive }) => {
                       type="checkbox"
                       role="switch"
                       checked={isAutoCashOut}
-                      onChange={(e) => setIsAutoCashOut(e.target.checked)}
+                      onChange={(e) =>
+                        dispatchBet({
+                          type: ACTIONS.SET_AUTO_CASHOUT,
+                          betKey,
+                          payload: e.target.checked,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -106,18 +155,36 @@ const AutoSection = ({ betKey, isAutoActive }) => {
             <div className={styles.cashOutSpinnerWrapper}>
               <div className={styles.cashOutSpinner}>
                 <div className={styles.spinner}>
-                  <div className={styles.input}>
+                  <div
+                    className={classnames(styles.input, {
+                      [styles.disabled]: !isAutoCashOut,
+                    })}
+                  >
                     <input
                       className={styles.inputText}
                       type="text"
                       inputMode="decimal"
-                      value={cashOutNumber}
-                      onChange={(e) => handleChange(e, setCashOutNumber)}
-                      onBlur={() => handleBlur(cashOutNumber, setCashOutNumber)}
+                      disabled={!isAutoCashOut}
+                      value={autoCashPoint}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowUp") {
+                          handleIncrement(autoCashPoint, setAutoCashPoint);
+                        } else if (e.key === "ArrowDown") {
+                          handleDecrement(
+                            autoCashPoint,
+                            setAutoCashPoint,
+                            1.01
+                          );
+                        }
+                      }}
+                      onChange={(e) => handleChange(e, setAutoCashPoint)}
+                      onBlur={() =>
+                        handleBlur(autoCashPoint, setAutoCashPoint, 1.1)
+                      }
                     />
-                  </div>
-                  <div className={styles.icon}>
-                    <span>x</span>
+                    <div className={styles.icon}>
+                      <span>x</span>
+                    </div>
                   </div>
                 </div>
               </div>

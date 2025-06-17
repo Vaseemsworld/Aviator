@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./BetControls.module.css";
 import classnames from "classnames";
 import {
@@ -10,7 +10,6 @@ import {
 import AutoSection, { AutoBetToggle } from "./AutoSection";
 import { EnginContext } from "../../context/EnginContext";
 import useSyncedRefWithRAF from "../../hooks/useSyncedRefWithRAF";
-import { useSoundContext } from "../../context/SoundContext";
 
 const useDisplayValue = (score, betAmount, shouldRun) => {
   const [displayValue, setDisplayValue] = useState(parseFloat(betAmount));
@@ -61,7 +60,6 @@ const BetInput = ({ betKey }) => {
     cancelBet,
     cashOut,
     handleAlertMessage,
-    winningAmount,
     flash,
     setFlash,
     dispatchBet,
@@ -69,7 +67,6 @@ const BetInput = ({ betKey }) => {
 
   const balance = betState.balance;
   const syncedIsLoading = useSyncedRefWithRAF(isLoadingRef);
-  const { playWin } = useSoundContext();
 
   const value = parseFloat(betState[betKey].betAmount);
   const setValue = (newValue) => {
@@ -87,17 +84,34 @@ const BetInput = ({ betKey }) => {
   const [isAutoActive, setIsAutoActive] = useState(false);
   const [isBetActive, setIsBetActive] = useState(true);
 
-  // const handleAutoBet = () => {
-  //   if (syncedIsLoading) {
-  //     buttonState = BUTTON_STATES.BET_PLACED;
-  //   } else {
-  //     buttonState = BUTTON_STATES.WAITING;
-  //   }
-  // };
+  const isAutoCashOut = betState[betKey].autoCashout;
+  const [autoCashPoint, setAutoCashPoint] = useState("1.10");
 
-  // if (isAutoActive) {
-  //   handleAutoBet();
-  // }
+  useEffect(() => {
+    if (
+      !isAutoCashOut ||
+      !autoCashPoint ||
+      buttonState !== BUTTON_STATES.FLYING
+    )
+      return;
+
+    let frameId;
+    const cashoutValue = parseFloat(autoCashPoint);
+
+    const checkAutoCashOut = () => {
+      const multiplier = parseFloat(score.current);
+      if (multiplier >= cashoutValue) {
+        cashOut(betKey, value, score);
+        return;
+      }
+
+      frameId = requestAnimationFrame(checkAutoCashOut);
+    };
+
+    frameId = requestAnimationFrame(checkAutoCashOut);
+
+    return () => cancelAnimationFrame(frameId);
+  }, [isAutoCashOut, autoCashPoint, buttonState]);
 
   useEffect(() => {
     if (syncedIsLoading) {
@@ -170,14 +184,7 @@ const BetInput = ({ betKey }) => {
         break;
       case BUTTON_STATES.FLYING:
         if (!syncedIsLoading) {
-          cashOut(
-            betKey,
-            value,
-            score,
-            playWin,
-            winningAmount,
-            handleAlertMessage
-          );
+          cashOut(betKey, value, score);
         }
         break;
       case BUTTON_STATES.WAITING:
@@ -249,6 +256,7 @@ const BetInput = ({ betKey }) => {
               <div className={classnames(styles.spinner, styles.big)}>
                 <div className={styles.button}>
                   <button
+                    aria-label="Decrement"
                     className={styles.minus}
                     style={{ color: "white" }}
                     onClick={() => handleDecrement(value, setValue)}
@@ -259,6 +267,14 @@ const BetInput = ({ betKey }) => {
                     className={styles.inputText}
                     type="text"
                     inputMode="decimal"
+                    disabled={buttonState !== BUTTON_STATES.IDLE}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp") {
+                        handleIncrement(value, setValue);
+                      } else if (e.key === "ArrowDown") {
+                        handleDecrement(value, setValue);
+                      }
+                    }}
                     value={value}
                     onChange={(e) => handleChange(e, setValue)}
                     onBlur={() => handleBlur(value, setValue)}
@@ -266,6 +282,7 @@ const BetInput = ({ betKey }) => {
                 </div>
                 <div className={styles.button}>
                   <button
+                    aria-label="Increment"
                     className={styles.plus}
                     onClick={() => handleIncrement(value, setValue)}
                   ></button>
@@ -323,7 +340,18 @@ const BetInput = ({ betKey }) => {
         </div>
 
         {/* Auto Section  */}
-        <AutoSection betKey={betKey} isAutoActive={isAutoActive} />
+        <AutoSection
+          isLoadingRef={isLoadingRef}
+          betKey={betKey}
+          placeBet={placeBet}
+          isAutoActive={isAutoActive}
+          // isAutoBetOn={isAutoBetOn}
+          // setIsAutoBetOn={setIsAutoBetOn}
+          // isAutoCashOut={isAutoCashOut}
+          // setIsAutoCashOut={setIsAutoCashOut}
+          autoCashPoint={autoCashPoint}
+          setAutoCashPoint={setAutoCashPoint}
+        />
       </div>
     </app-bet-control>
   );

@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import useSoundEffects from '../hooks/useSoundEffects'; // Adjust the import if needed
+import React, { createContext, useContext } from "react";
+import useSoundEffects from "../hooks/useSoundEffects"; // Adjust the import if needed
 
 // Create context
 const SoundContext = createContext();

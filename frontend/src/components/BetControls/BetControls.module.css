@@ -310,7 +310,9 @@ label {
   justify-content: center;
   align-items: center;
   max-width: 390px;
+  opacity: 1;
 }
+
 .autoSection .secondRow {
   display: flex;
   justify-content: space-between;
@@ -352,6 +354,11 @@ label {
   justify-content: space-between;
   align-items: center;
   margin: 0 5px;
+  opacity: 1;
+}
+.cashOutBlock.disable {
+  opacity: 0.5;
+  pointer-events: none;
 }
 .cashOutBlock .cashOutSwitcher {
   width: 100%;
@@ -402,7 +409,10 @@ label {
 .switch :global(.form-check-input:focus) {
   box-shadow: none;
 }
-
+.cashOutSpinner .input.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
 @media (max-width: 630px) {
   .controls {
     flex-direction: column;

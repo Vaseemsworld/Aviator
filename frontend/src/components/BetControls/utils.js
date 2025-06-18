@@ -18,6 +18,8 @@ export const handleChange = (e, setValue) => {
   if (!isNaN(numeric)) {
     const clamped = clampValue(numeric);
     setValue(formatValue(clamped));
+  } else {
+    setValue(0);
   }
 };
 

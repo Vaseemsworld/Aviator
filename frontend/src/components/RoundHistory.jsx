@@ -12,8 +12,8 @@ const RoundHistory = () => {
 
   const generateRandomRound = () => {
     const rand = Math.random();
-    if (rand < 0.8) {
-      return +(1 + Math.random() * 2).toFixed(2);
+    if (rand < 0.6) {
+      return +(1 + Math.random()).toFixed(2);
     } else if (rand < 0.95) {
       return +(2 + Math.random() * 8).toFixed(2);
     } else {

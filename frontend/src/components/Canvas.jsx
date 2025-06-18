@@ -98,7 +98,10 @@ const Canvas = () => {
     let loopDistanceT = 0;
     let looping = false;
     let direction = true;
-    const speed = 2;
+    const isMobile = canvas.width < 500;
+    const baseSpeed = isMobile ? 0.06 : 0.1;
+    const imgRotationSpeed = isMobile ? 0.03 : 0.04;
+    const loaderSpeed = isMobile ? 0.002 : 0.003;
     const planeScale = 0.5;
     const scale = Math.min(Math.max(canvas.width / 800, 0.6), 1.5);
     const scorefontSize = Math.max(70, canvas.width * 0.05);
@@ -147,7 +150,7 @@ const Canvas = () => {
       } else {
         targetColor = colors[2];
       }
-      const lerpAmount = 0.05; // transition speed
+      const lerpAmount = 0.05; // transition baseSpeed
 
       currentColor.r += (targetColor.r - currentColor.r) * lerpAmount;
       currentColor.g += (targetColor.g - currentColor.g) * lerpAmount;
@@ -204,7 +207,7 @@ const Canvas = () => {
       y: canvas.height - planeImg.height * planeScale - 10,
     });
 
-    const handlePlane = () => {
+    const handlePlane = (deltaTime) => {
       if (isLoadingRef.current) return;
       const { planeImg } = imagesRef.current;
       if (!planeImg?.complete || planeImg.naturalWidth === 0) return;
@@ -247,16 +250,11 @@ const Canvas = () => {
 
       let pos;
       let bezT = 0;
-      // if (score.current >= crashScore.current) {
-      //   pos = {
-      //     x: canvas.width + 500,
-      //     y: P0.y,
-      //   };
-      // }
+
       if (distanceT <= takeoffLength) {
         bezT = mapArcLengthToT(takeoffLUT, distanceT);
         pos = getCubicBezierXY(bezT, P0, P1, P2, P3);
-        distanceT += speed;
+        distanceT += baseSpeed * deltaTime;
       } else {
         if (!looping) {
           looping = true;
@@ -274,7 +272,7 @@ const Canvas = () => {
         );
         pos = getCubicBezierXY(bezT, P3, P4, P5, P6);
 
-        loopDistanceT += speed * 0.5;
+        loopDistanceT += baseSpeed * 0.5 * deltaTime;
         if (loopDistanceT >= loopLength) {
           loopDistanceT = 0;
           direction = !direction;
@@ -367,7 +365,7 @@ const Canvas = () => {
       ctx.rotate(loaderImgRotationRef.current);
       ctx.drawImage(loaderImg, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
       ctx.restore();
-      loaderImgRotationRef.current += 0.05;
+      loaderImgRotationRef.current += imgRotationSpeed;
 
       ctx.font = `${textSize}px Arial, sans-serif`;
       ctx.fillStyle = "#fff";
@@ -402,7 +400,7 @@ const Canvas = () => {
         planeImg.height * planeScale
       );
 
-      progressRef.current -= 0.003;
+      progressRef.current -= loaderSpeed;
       if (progressRef.current <= 0) {
         progressRef.current = 0;
         playTakeoff();
@@ -454,7 +452,7 @@ const Canvas = () => {
 
     const draw = (timestamp) => {
       if (!ctx) return;
-      const deltaTime = timestamp - lastDrawTime;
+      const deltaTime = Math.min(timestamp - lastDrawTime, 1000);
       if (score.current <= crashScore.current) {
         if (deltaTime < 1000 / 60) {
           animationFrameRef.current = requestAnimationFrame(draw);
@@ -469,7 +467,7 @@ const Canvas = () => {
           isLoadingRef.current = true;
         } else {
           isLoadingRef.current = false;
-          handlePlane();
+          handlePlane(deltaTime);
           handleScore(deltaTime);
         }
         animationFrameRef.current = requestAnimationFrame(draw);

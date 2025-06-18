@@ -89,7 +89,12 @@ const useSoundEffects = () => {
   };
 
   const playSound = (sound) => {
-    if (!isSoundRef.current || !soundBufferRef.current) return;
+    if (
+      !isSoundRef.current ||
+      !soundBufferRef.current ||
+      audioContextRef.current.state !== "running"
+    )
+      return;
 
     const { start, end } = SOUND_EVENTS[sound];
     const source = audioContextRef.current.createBufferSource();

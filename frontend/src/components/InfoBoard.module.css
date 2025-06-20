@@ -1,0 +1,259 @@
+/* info board */
+.infoBoard {
+  height: 100%;
+  width: 100%;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.pt2 {
+  padding-top: 10px;
+}
+
+app-bets-widget {
+  display: flex;
+  width: inherit;
+  height: 100%;
+  min-height: 0;
+}
+.betsBlock {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #1b1c1d;
+  border-radius: 10px 10px 0 0;
+}
+
+.betsBlock .betsBlockNav {
+  min-height: 24px;
+  min-width: 24px;
+  font-size: 12px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.betsBlock .betsBlockNav .navigationSwitcherWrapper {
+  height: 24px;
+}
+.betsBlock .betsBlockNav .navigationSwitcher {
+  height: 100%;
+  background: #141516;
+  border-radius: 10px;
+  border: solid 1px #141516;
+  position: relative;
+}
+.navigationSwitcher button {
+  width: 100px;
+}
+.navigationSwitcher .tab.active {
+  color: #fff;
+  cursor: default;
+  transform: scale(1.02);
+  background: rgb(44, 45, 48);
+  border-radius: 10px;
+  transition: transform 0.5s ease, background 0.5s ease;
+}
+.navigationSwitcher .tab {
+  height: 100%;
+  position: relative;
+  text-align: center;
+  transform: translate(0);
+  background: none;
+  color: #9ea0a3;
+  border: none;
+  padding: 0;
+  transition: color 0.5s ease;
+}
+.navigationSwitcher .tab:hover {
+  color: #f00;
+}
+.betsBlock .dataList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.betsBlock .dataList .dataItem {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.allBetsBlock {
+  font-size: 14px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.px2 {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.pb1 {
+  padding-bottom: 5px;
+}
+.textUpperCase {
+  text-transform: uppercase;
+}
+.spacer {
+  height: 2px;
+  background-color: #141516;
+}
+.legend {
+  font-size: 11px;
+  color: #7b7b7b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mx2 {
+  margin: 5px 10px 5px 10px;
+}
+.legend .user {
+  width: 26%;
+}
+.legend .bet {
+  text-align: right;
+  white-space: nowrap;
+}
+.legend .bet span {
+  padding-left: 10px;
+}
+.legend .cashOut {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.virtualScrollViewport {
+  margin: 0 0 0 5px;
+  scrollbar-width: thin;
+  overflow-y: scroll;
+  margin: 0 5px;
+  height: 100%;
+  width: 100%;
+  display: block;
+  position: relative;
+  overflow: auto;
+  contain: strict;
+  transform: translateZ(0);
+  will-change: scroll-position;
+  border-radius: 16px;
+}
+
+.contentWrapper {
+  min-width: 100% !important;
+  top: 0;
+  left: 0;
+  contain: content;
+}
+/* .listItemContainer {
+  padding: 5px 0 0 0;
+} */
+.listItem {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  width: 100%;
+  padding: 4px;
+  margin-top: 4px;
+  border-radius: 32px;
+  background: #101112;
+}
+.column {
+  width: 100%;
+  font-size: 13px;
+  color: #bbbfc5;
+  font-weight: 500;
+  text-align: right;
+  margin-left: 4px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.playerColumn {
+  display: flex;
+  align-items: center;
+  min-width: 92px;
+  margin-left: 0;
+  padding: 0;
+}
+.playerColumn img {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+.playerColumn .username {
+  padding: 0 4px;
+  width: 100%;
+  font-feature-settings: lining-nums tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.18px;
+  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.betColumn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 72px;
+}
+
+/* footer */
+app-footer {
+  width: 100%;
+  display: flex;
+  min-height: 25px;
+  max-height: 25px;
+}
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  background-color: #000;
+  border: 1px solid #2a2b2e;
+  font-size: 11px;
+  color: #5e6269;
+  padding: 2px 0 3px 0;
+}
+.provablyFairBlock {
+  display: flex;
+  height: 16px;
+}
+.provablyFair {
+  display: flex;
+  align-items: center;
+}
+.provablyFair .icon {
+  background: url("../assets/icon-provabyfair.71eb97eaadfab595.svg") no-repeat
+    center center/contain;
+  width: 14px;
+  height: 16px;
+  margin: 0 4px 0 6px;
+}
+.textProvably {
+  font-size: 12px;
+  color: #bbbfc5;
+  line-height: 1px;
+}
+
+@media (min-width: 992.01px) {
+  .infoBoard {
+    min-width: 370px;
+    max-width: 370px;
+  }
+}
+
+@media (max-width: 992px) {
+  .infoBoard {
+    height: 80vh;
+    padding-left: 0;
+    padding-top: 20px !important;
+  }
+}

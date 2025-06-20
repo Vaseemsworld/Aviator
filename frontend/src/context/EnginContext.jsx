@@ -178,6 +178,11 @@ const EngineProvider = ({ children }) => {
 
   const timeoutRef = useRef(new Map());
 
+  const [activePage, setActivePage] = useState(null);
+  const openDeposit = () => setActivePage("deposit");
+  const openWithdraw = () => setActivePage("withdraw");
+  const closePage = () => setActivePage(null);
+
   const { playWin } = useSoundEffects();
 
   const placeBet = (betKey, amount) => {
@@ -276,6 +281,10 @@ const EngineProvider = ({ children }) => {
         alerts,
         handleAlertMessage,
         dispatchBet,
+        activePage,
+        closePage,
+        openDeposit,
+        openWithdraw,
       }}
     >
       {children}

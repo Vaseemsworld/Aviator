@@ -4,22 +4,26 @@ import classnames from "classnames";
 import styles from "./Dashboard.module.css";
 import logo from "../assets/aviator.png";
 import avatar from "../assets/av-1.png";
-import { MdAnimation, MdOutlinePayments } from "react-icons/md";
+import { MdOutlinePayments } from "react-icons/md";
 import { SiLevelsdotfyi } from "react-icons/si";
 import { FaBars } from "react-icons/fa6";
 import { AiOutlineSafetyCertificate } from "react-icons/ai";
 import Canvas from "./Canvas.jsx";
 import RoundHistory from "./RoundHistory.jsx";
 import BetControls from "./BetControls/BetControls.jsx";
+import InfoBoard from "./InfoBoard.jsx";
+
 import { useSoundContext } from "../context/SoundContext.jsx";
 import { EnginContext } from "../context/EnginContext.jsx";
+import Deposit from "./Wallet/Deposit.jsx";
+import Withdraw from "./Wallet/Withdraw.jsx";
 
 const Dashboard = () => {
-  const { score, betState, alerts } = useContext(EnginContext);
+  const { activePage, closePage, openDeposit, openWithdraw } =
+    useContext(EnginContext);
+  const { betState, alerts } = useContext(EnginContext);
   const balance = betState.balance;
   const [sidebar, setSidebar] = useState(false);
-  const [isActive, setIsActive] = useState("all");
-
   const { toggle, playing, toggleSound, isSound } = useSoundContext();
 
   const sidebarFunc = () => {
@@ -35,9 +39,16 @@ const Dashboard = () => {
               <img src={logo} alt="Logo" />
             </div>
             <div className={styles.navBar}>
-              <div className={styles.navBalance}>
-                <span className={styles.navAmount}>{balance.toFixed(2)}</span>
-                <span className={styles.navCurrency}> INR</span>
+              <div className={styles.navBalanceContainer}>
+                <span className={styles.depositIcon}>
+                  <button className={styles.icon} onClick={openDeposit}>
+                    <MdOutlinePayments />
+                  </button>
+                </span>
+                <div className={styles.navBalance}>
+                  <span className={styles.navAmount}>{balance.toFixed(2)}</span>
+                  <span className={styles.navCurrency}> INR</span>
+                </div>
               </div>
               <div className={styles.navToggler}>
                 <span className={styles.navToggleBtn} onClick={sidebarFunc}>
@@ -48,7 +59,11 @@ const Dashboard = () => {
           </div>
           {sidebar && (
             <div className={styles.user}>
-              <div className={styles.sidebar}>
+              <div
+                className={classnames(styles.sidebar, {
+                  [styles.sidebarOpen]: sidebar,
+                })}
+              >
                 <div className={styles.section1}>
                   <div className={styles.avatar}>
                     <img src={avatar} alt="avatar" />
@@ -150,20 +165,27 @@ const Dashboard = () => {
                 </div>
                 <div className={styles.section3}>
                   <div className={styles.listMenuItem}>
-                    <div className={styles.title}>
-                      <span className={styles.icon}>
-                        <MdOutlinePayments />
-                      </span>
-                      DEPOSIT FUNDS
-                    </div>
+                    <button className={styles.btnDeposit} onClick={openDeposit}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <MdOutlinePayments />
+                        </span>
+                        DEPOSIT FUNDS
+                      </div>
+                    </button>
                   </div>
                   <div className={styles.listMenuItem}>
-                    <div className={styles.title}>
-                      <span className={styles.icon}>
-                        <MdOutlinePayments />
-                      </span>
-                      WITHDRAW FUNDS
-                    </div>
+                    <button
+                      className={styles.btnWithdraw}
+                      onClick={openWithdraw}
+                    >
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <MdOutlinePayments />
+                        </span>
+                        WITHDRAW FUNDS
+                      </div>
+                    </button>
                   </div>
                   <div className={styles.listMenuItem}>
                     <div className={styles.title}>
@@ -196,6 +218,8 @@ const Dashboard = () => {
             </div>
           )}
         </header>
+        {activePage === "deposit" && <Deposit onClose={closePage} />}
+        {activePage === "withdraw" && <Withdraw onClose={closePage} />}
         {alerts.map((alert, index) => (
           <div
             key={alert.id}
@@ -232,84 +256,7 @@ const Dashboard = () => {
 
         <main>
           <div className={styles.gameContainer}>
-            <div className={classnames(styles.infoBoard, styles.pt2)}>
-              <app-bets-widget>
-                <div className={styles.betsBlock}>
-                  <div className={styles.betsBlockNav}>
-                    <app-navigation-switcher
-                      className={styles.navigationSwitcherWrapper}
-                    >
-                      <div className={styles.navigationSwitcher}>
-                        <button
-                          className={classnames(styles.tab, {
-                            [styles.active]: isActive === "all",
-                          })}
-                          onClick={() => setIsActive("all")}
-                        >
-                          All Bets
-                        </button>
-                        <button
-                          className={classnames(styles.tab, {
-                            [styles.active]: isActive === "my",
-                          })}
-                          onClick={() => setIsActive("my")}
-                        >
-                          My Bets
-                        </button>
-                        <button
-                          className={classnames(styles.tab, {
-                            [styles.active]: isActive === "top",
-                          })}
-                          onClick={() => setIsActive("top")}
-                        >
-                          Top Bets
-                        </button>
-                      </div>
-                    </app-navigation-switcher>
-                  </div>
-                  <app-all-bets-tab className={styles.dataList}>
-                    <div className={styles.dataItem}>
-                      <app-header className={styles.headerWrapper}>
-                        <div
-                          className={classnames(
-                            styles.allBetsBlock,
-                            styles.pb1,
-                            styles.px2
-                          )}
-                        >
-                          <div>
-                            <div className={styles.textUpperCase}>ALL BETS</div>
-                            <div>179</div>
-                          </div>
-                        </div>
-                        <div className={styles.spacer}></div>
-                        <div className={classnames(styles.legend, styles.mx2)}>
-                          <span className={styles.user}>User</span>
-                          <span className={styles.bet}>
-                            Bet INR <span>X</span>
-                          </span>
-                          <span className={styles.cashOut}>Cash out INR</span>
-                        </div>
-                      </app-header>
-                      <virtual-scroll-viewport
-                        className={styles.virtualScrollViewport}
-                      ></virtual-scroll-viewport>
-                    </div>
-                  </app-all-bets-tab>
-                </div>
-              </app-bets-widget>
-              <app-footer>
-                <div className={classnames(styles.footer, styles.px2)}>
-                  <div className={styles.provablyFairBlock}>
-                    <span>This game is</span>
-                    <div className={styles.provablyFair}>
-                      <div className={styles.icon}></div>
-                      <span className={styles.textProvably}>Provably Fair</span>
-                    </div>
-                  </div>
-                </div>
-              </app-footer>
-            </div>
+            <InfoBoard />
             <div className={styles.gamePlay}>
               <RoundHistory />
               <div className={styles.stageBoard}>

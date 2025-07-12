@@ -2,90 +2,130 @@ import React, { useState } from "react";
 import styles from "./Auth.module.css";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { isValidPhone } from "../../utils/validation";
+import api from "../../api";
+import { useAuth } from "../../context/AuthContext";
 
-const Login = ({ openRegisterModal }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+const Login = ({
+  onClose,
+  openRegisterModal,
+  onLoginSuccess,
+  setShowPasswordModal,
+}) => {
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    phone: "",
+    password: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    if (!formData.phone || !formData.password) {
+      setError("Mobile Number and password are required.");
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setError("Invalid phone number.");
+      return;
+    }
     try {
-      const response = await axios.post("http://127.0.0.1:8000/users/login/", {
-        username,
-        password,
+      const response = await api.post("/login/", {
+        phone: formData.phone,
+        password: formData.password,
       });
-      setMessage(response.data.message || "Login successful");
-    } catch (err) {
-      if (err.response) {
-        setMessage(err.response.data.error || "An error occurred. Try again.");
+
+      if (response.data.access) {
+        await login(response.data.access, response.data.refresh);
+        onLoginSuccess?.(response.data);
+        onClose();
+        toast.success("Login successful!");
       } else {
-        setMessage("Please check your internet connection and try again.");
+        setError("Login failed. Try again.");
+        toast.error("Login failed. Try again.");
       }
+    } catch (err) {
+      setIsLoading(false);
+      setFormData({ phone: "", password: "" });
+      setError("Invalid credentials. Try Again!");
+      toast.error("Invalid credentials. Try Again!");
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Login</h1>
-      <form onSubmit={handleLogin}>
-        <div className={styles.usernameContainer}>
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={styles.input}
-          />
+    <div className={styles.overlay}>
+      <div className={styles.loginBox}>
+        <h2 className={styles.title}>Login</h2>
+        <form onSubmit={handleLogin}>
+          <div className={`${styles.inputGroup} ${error ? styles.error : ""}`}>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleChange}
+              className={styles.input}
+            />
+          </div>
+
+          <div className={`${styles.inputGroup} ${error ? styles.error : ""}`}>
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className={styles.input}
+              />
+              <span
+                className={styles.eyeIcon}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.inlineRow}>
+            <span className={styles.errorText}>{error || "\u00A0"}</span>
+
+            <div className={styles.forgotPassword}>
+              {/* <span onClick={() => setShowPasswordModal(true)}>
+                Forgot Password?
+              </span> */}
+              <span>Forgot Password?</span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={
+              isLoading || !isValidPhone(formData.phone) || !formData.password
+            }
+          >
+            {isLoading ? "Login..." : "Login"}
+          </button>
+        </form>
+        <div className={styles.switchLink}>
+          Don’t have an account?{" "}
+          <span onClick={openRegisterModal}>Register</span>
         </div>
 
-        <br />
-        <div className={styles.passwordContainer}>
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={styles.input}
-          />
-          <span
-            className={styles.eyeIcons}
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
-        <br />
-        <h4 className={styles.forgotPassword}>Forgot Password ?</h4>
-        <button className={`${styles.btn} ${styles.loginBtn}`} type="submit">
-          Login
+        <button className={styles.closeButton} onClick={onClose}>
+          ✕
         </button>
-        {message && (
-          <p
-            style={{ color: message.includes("successful") ? "green" : "red" }}
-          >
-            {message}
-          </p>
-        )}
-        <div className={styles.loginFooter}>
-          <h4>Not Registered Yet?</h4>
-          <button
-            className={`${styles.btn} ${styles.registerBtn}`}
-            type="button"
-            onClick={(e) => {
-              openRegisterModal();
-            }}
-          >
-            Register
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

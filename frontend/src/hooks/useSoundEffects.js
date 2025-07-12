@@ -40,7 +40,7 @@ const useSoundEffects = () => {
         bgMusicBufferRef.current = bgBuffer;
         soundBufferRef.current = soundBuffer;
       } catch {
-        console.log("Error loading Audio");
+        console.error("Error loading Audio");
       }
     };
 

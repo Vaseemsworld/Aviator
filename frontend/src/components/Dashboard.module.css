@@ -1,12 +1,19 @@
-.loadingScreen {
-  height: 100vh;
-  width: 100vw;
+.loaderWrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background-color: #000;
+  justify-content: center;
+  height: 100vh;
+  background: #0d1117; /* dark bg */
   color: #fff;
+  font-family: sans-serif;
 }
+.loaderText {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
 body {
   font-family: "Arial", sans-serif;
   background-color: #000000;
@@ -69,16 +76,17 @@ header {
   border-radius: 20px;
   display: flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 8px;
 }
-.depositIcon {
+/* .depositIcon {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 4px;
 }
 .depositIcon button {
   all: unset;
-}
+} */
 .navBalanceContainer .icon {
   display: flex;
   color: #ffcc00;
@@ -89,7 +97,9 @@ header {
   color: #28a909;
   display: inline-block;
 }
-
+.btnBalance {
+  all: unset;
+}
 .navAmount {
   font-size: 18px;
   font-weight: 700;
@@ -122,12 +132,12 @@ header .user {
 }
 
 .sidebar {
+  position: fixed;
+  top: 60px;
+  right: 0;
   z-index: 1000;
   background: #383a3e;
   color: #ffffff;
-  position: absolute;
-  top: 60px;
-  right: 0;
   border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.4);
   border-radius: 0 0 10px 10px;
@@ -183,8 +193,7 @@ header .user {
 .section3 {
   background: #2c2d30;
 }
-.section3 .btnDeposit,
-.section3 .btnWithdraw {
+.section3 .btnItem {
   all: unset;
   cursor: pointer;
 }
@@ -196,10 +205,21 @@ header .user {
 }
 
 .section4 .title .icon {
+  color: green;
   padding-left: 5px;
   padding-right: 5px;
 }
-
+.btnLogout {
+  all: unset;
+  cursor: pointer;
+  color: #ff0000;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+.btnLogout:hover {
+  color: #ff4d4d;
+}
 .sidebar :global(.form-check-input) {
   background-color: #444;
   border: none;
@@ -216,9 +236,90 @@ header .user {
   box-shadow: none;
 }
 
+/* logout page */
+
+.logoutContainer {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+.logoutContainer.visible {
+  background-color: rgba(0, 0, 0, 0.8);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.logoutContent {
+  background-color: #1c1c1c;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 90%;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  position: relative;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.logoutContainer h2 {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.logoutButton,
+.cancelButton {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logoutButton {
+  background-color: #e53935;
+  color: white;
+}
+
+.logoutButton:hover {
+  background-color: #c62828;
+}
+
+.cancelButton {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.cancelButton:hover {
+  background-color: #cfcfcf;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* alert section */
 .alertContainer {
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 50%;
   width: 320px;
@@ -227,7 +328,7 @@ header .user {
   padding: 8px 12px;
   border-radius: 8px;
   font-weight: bold;
-  z-index: 9;
+  z-index: 1000;
   opacity: 1;
   transition: top 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
@@ -326,6 +427,7 @@ header .user {
   color: #fff;
   width: 100%;
   height: calc(100vh - 59px);
+  height: 100dvh;
   display: flex;
   flex-direction: row;
   overflow: hidden;

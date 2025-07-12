@@ -1,5 +1,8 @@
 import { createContext, useState, useRef, useEffect, useReducer } from "react";
 import useSoundEffects from "../hooks/useSoundEffects";
+import { toast } from "react-toastify";
+import api from "../api";
+import { fetchBalance } from "../utils/fetchBalance";
 
 export const EnginContext = createContext();
 
@@ -167,60 +170,174 @@ const betReducer = (state, action) => {
   }
 };
 
-const EngineProvider = ({ children }) => {
+const EngineProvider = ({ children, initialBalance = 0 }) => {
   const isLoadingRef = useRef(true);
   const score = useRef(1);
   const winningAmount = useRef(0);
   const [flash, setFlash] = useState(false);
 
-  const [betState, dispatchBet] = useReducer(betReducer, initialState);
+  const [betState, dispatchBet] = useReducer(betReducer, {
+    ...initialState,
+    balance: initialBalance,
+  });
   const [alerts, setAlerts] = useState([]);
 
   const timeoutRef = useRef(new Map());
 
   const [activePage, setActivePage] = useState(null);
+  const [type, setType] = useState(null);
   const openDeposit = () => setActivePage("deposit");
   const openWithdraw = () => setActivePage("withdraw");
-  const closePage = () => setActivePage(null);
+  const openWalletHistory = (type) => {
+    setActivePage("walletHistory");
+    if (type === "bets") {
+      setType("bets");
+    } else if (type === "transactions") {
+      setType("transactions");
+    } else {
+      setType(null);
+    }
+  };
+
+  const closePage = () => {
+    setActivePage(null);
+    setType(null);
+  };
 
   const { playWin } = useSoundEffects();
 
-  const placeBet = (betKey, amount) => {
-    dispatchBet({
-      type: ACTIONS.PLACE_BET,
-      betKey,
-      payload: { amount },
-    });
-  };
+  // const getBalance = async () => {
+  //   try {
+  //     const token = localStorage.getItem("access");
+  //     if (!token) return;
 
-  const cancelBet = (betKey, amount) => {
-    if (betState[betKey].hasDeductedBalance) {
-      dispatchBet({
-        type: ACTIONS.ADD_BALANCE,
-        payload: parseFloat(amount),
-      });
+  //     const res = await api.get("/wallet/balance/", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     dispatchBet({ type: ACTIONS.SET_BALANCE, payload: res.data.balance });
+  //   } catch (err) {
+  //     console.error("Failed to fetch balance", err);
+  //   }
+  // };
+  const getBalance = async () => {
+    const token = localStorage.getItem("access");
+    if (!token) return;
+    const balance = await fetchBalance({ token });
+    if (balance !== null) {
+      dispatchBet({ type: ACTIONS.SET_BALANCE, payload: balance });
     }
-    dispatchBet({
-      type: ACTIONS.RESET_BET,
-      betKey,
-      payload: getDefaultBetState(),
-    });
   };
 
-  const cashOut = (betKey, amount, score) => {
-    const winnings = parseFloat(amount) * score.current;
-    dispatchBet({
-      type: ACTIONS.ADD_BALANCE,
-      payload: winnings,
-    });
-    winningAmount.current = winnings;
-    playWin();
-    handleAlertMessage("CASHOUT");
-    dispatchBet({
-      type: ACTIONS.RESET_BET,
-      betKey,
-      payload: getDefaultBetState(),
-    });
+  const placeBet = async (betKey, amount) => {
+    try {
+      const token = localStorage.getItem("access");
+      if (!token) {
+        toast.error("You need to be logged in to place a bet.");
+        return { success: false, error: "Not authenticated" };
+      }
+      const amt = parseFloat(amount);
+      if (!amt || amt <= 0) {
+        console.error("Enter a valid bet");
+        return { success: false, error: "Invalid amount" };
+      }
+      const currentBalance = await fetchBalance({ token });
+      if (amt > currentBalance) {
+        dispatchBet({
+          type: ACTIONS.RESET_BET,
+          betKey,
+          payload: getDefaultBetState(),
+        });
+        handleAlertMessage("LOW_BALANCE");
+        return { success: false, error: "Insufficient balance" };
+      }
+
+      const res = await api.post(
+        "/wallet/bet/",
+        { amount: parseFloat(amount), bet_key: betKey },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      dispatchBet({
+        type: ACTIONS.PLACE_BET,
+        betKey,
+        payload: { amount: parseFloat(amount) },
+      });
+      if (res.data?.balance !== undefined) {
+        dispatchBet({
+          type: ACTIONS.SET_BALANCE,
+          payload: res.data.balance,
+        });
+      }
+
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.detail || "Bet placement failed",
+      };
+    }
+  };
+  const cancelBet = async (betKey, amount) => {
+    if (betState[betKey].hasDeductedBalance) {
+      try {
+        const token = localStorage.getItem("access");
+        const res = await api.post(
+          "/wallet/cancel/",
+          { amount: parseFloat(amount), bet_key: betKey },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        dispatchBet({
+          type: ACTIONS.SET_BALANCE,
+          payload: res.data.balance,
+        });
+
+        dispatchBet({
+          type: ACTIONS.RESET_BET,
+          betKey,
+          payload: getDefaultBetState(),
+        });
+      } catch (err) {
+        const error = err.response?.data?.detail || "Cancel bet failed";
+        return error;
+      }
+    }
+  };
+
+  const cashOut = async (betKey, amount, score) => {
+    const multiplier = score.current;
+    const winnings = parseFloat(amount) * multiplier;
+
+    try {
+      const token = localStorage.getItem("access");
+      const res = await api.post(
+        "/wallet/win/",
+        {
+          amount: winnings.toFixed(2),
+          bet_key: betKey,
+          multiplier: multiplier.toFixed(2),
+          base_bet: parseFloat(amount).toFixed(2),
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      dispatchBet({
+        type: ACTIONS.SET_BALANCE,
+        payload: res.data.balance,
+      });
+      winningAmount.current = winnings;
+      playWin();
+      handleAlertMessage("CASHOUT");
+      dispatchBet({
+        type: ACTIONS.RESET_BET,
+        betKey,
+        payload: getDefaultBetState(),
+      });
+    } catch (err) {
+      const error = err.response?.data?.detail || "Cashout failed";
+      return error;
+    }
   };
 
   const addAlert = (alert) => {
@@ -258,6 +375,7 @@ const EngineProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    getBalance();
     const timeOutRefCurrent = timeoutRef.current;
     return () => {
       timeOutRefCurrent.forEach((timeout) => clearTimeout(timeout));
@@ -282,9 +400,11 @@ const EngineProvider = ({ children }) => {
         handleAlertMessage,
         dispatchBet,
         activePage,
+        type,
         closePage,
         openDeposit,
         openWithdraw,
+        openWalletHistory,
       }}
     >
       {children}

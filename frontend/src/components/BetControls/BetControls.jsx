@@ -31,7 +31,6 @@ const useDisplayValue = (score, betAmount, shouldRun) => {
     const update = () => {
       const targetValue = score.current * betAmountRef.current;
       setDisplayValue((prev) => {
-        // for smooth score update
         const diff = targetValue - prev;
         if (Math.abs(diff) < 0.01) {
           return targetValue;
@@ -345,10 +344,6 @@ const BetInput = ({ betKey }) => {
           betKey={betKey}
           placeBet={placeBet}
           isAutoActive={isAutoActive}
-          // isAutoBetOn={isAutoBetOn}
-          // setIsAutoBetOn={setIsAutoBetOn}
-          // isAutoCashOut={isAutoCashOut}
-          // setIsAutoCashOut={setIsAutoCashOut}
           autoCashPoint={autoCashPoint}
           setAutoCashPoint={setAutoCashPoint}
         />

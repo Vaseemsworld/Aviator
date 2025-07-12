@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "../index.css";
 import logo from "../assets/aviator_logo.png";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
-import styles from "./Auth/Auth.module.css";
+import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
+import ForgotPassword from "./Auth/ForgotPassword";
 
 const Home = () => {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -17,6 +21,15 @@ const Home = () => {
   const openLoginModal = () => setShowLoginModal(true);
   const closeLoginModal = () => setShowLoginModal(false);
 
+  const openPasswordModal = () => {
+    setShowPasswordModal(false);
+  };
+  const { login } = useAuth();
+
+  const handlLoginSuccess = (data) => {
+    login(data.access, data.refresh);
+    closeLoginModal();
+  };
   return (
     <div className="app">
       <header className="header">
@@ -42,26 +55,35 @@ const Home = () => {
           </p>
           <button className="download-btn">DOWNLOAD APK</button>
         </div>
-        {showRegisterModal && (
-          <div className={styles.modal}>
-            <div className={styles.modalContent}>
-              <span className={styles.close} onClick={closeRegisterModal}>
-                &times;
-              </span>
-              <Register />
-            </div>
-          </div>
+        {showPasswordModal ? (
+          <ForgotPassword onClose={openPasswordModal} />
+        ) : (
+          showRegisterModal && (
+            <Register
+              onClose={closeRegisterModal}
+              openLoginModal={openLoginModal}
+              onLoginSuccess={(data) => {
+                login(data.access, data.refresh);
+                closeRegisterModal();
+              }}
+            />
+          )
         )}
-        {showLoginModal && (
-          <div className={styles.modal}>
-            <div className={styles.modalContent}>
-              <span className={styles.close} onClick={closeLoginModal}>
-                &times;
-              </span>
-              <Login openRegisterModal={openRegisterModal} />
-            </div>
-          </div>
+        {showPasswordModal ? (
+          <ForgotPassword onClose={openPasswordModal} />
+        ) : (
+          showLoginModal && (
+            <Login
+              onClose={closeLoginModal}
+              openRegisterModal={openRegisterModal}
+              onLoginSuccess={(data) => {
+                handlLoginSuccess(data);
+              }}
+              setShowPasswordModal={setShowPasswordModal}
+            />
+          )
         )}
+
         <div className="section about-section">
           <div className="container">
             <h2 className="heading">About the Game</h2>

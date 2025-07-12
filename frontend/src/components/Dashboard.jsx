@@ -1,34 +1,63 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext, act } from "react";
 import axios from "axios";
 import classnames from "classnames";
 import styles from "./Dashboard.module.css";
 import logo from "../assets/aviator.png";
 import avatar from "../assets/av-1.png";
 import { MdOutlinePayments } from "react-icons/md";
-import { SiLevelsdotfyi } from "react-icons/si";
+import { RiCustomerService2Fill } from "react-icons/ri";
 import { FaBars } from "react-icons/fa6";
 import { AiOutlineSafetyCertificate } from "react-icons/ai";
+import { FaHistory } from "react-icons/fa";
+import { ImExit } from "react-icons/im";
 import Canvas from "./Canvas.jsx";
 import RoundHistory from "./RoundHistory.jsx";
 import BetControls from "./BetControls/BetControls.jsx";
 import InfoBoard from "./InfoBoard.jsx";
+import Deposit from "./Wallet/Deposit.jsx";
+import Withdraw from "./Wallet/Withdraw.jsx";
+import WalletHistory from "./Wallet/WalletHistory.jsx";
 
 import { useSoundContext } from "../context/SoundContext.jsx";
 import { EnginContext } from "../context/EnginContext.jsx";
-import Deposit from "./Wallet/Deposit.jsx";
-import Withdraw from "./Wallet/Withdraw.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import useClickOutside from "../utils/useClickOutside.js";
 
 const Dashboard = () => {
-  const { activePage, closePage, openDeposit, openWithdraw } =
-    useContext(EnginContext);
+  const {
+    activePage,
+    closePage,
+    openDeposit,
+    openWithdraw,
+    openWalletHistory,
+  } = useContext(EnginContext);
   const { betState, alerts } = useContext(EnginContext);
-  const balance = betState.balance;
+  const [logoutShow, setLogoutShow] = useState(false);
+  const [loggedout, setLogout] = useState(false);
+  const { user, logout, authLoading, isAuthenticated } = useAuth();
   const [sidebar, setSidebar] = useState(false);
+
+  const balance = betState.balance;
   const { toggle, playing, toggleSound, isSound } = useSoundContext();
 
-  const sidebarFunc = () => {
-    setSidebar(!sidebar);
+  const onClose = () => {
+    setSidebar(false);
   };
+  const modalRef = useRef(null);
+  useClickOutside(modalRef, onClose);
+
+  const handleLogoutButton = () => {
+    setLogout(true);
+    logout();
+  };
+
+  useEffect(() => {
+    if (activePage != null || sidebar) {
+      document.body.classList.add("noScroll");
+    } else {
+      document.body.classList.remove("noScroll");
+    }
+  }, [activePage, sidebar]);
 
   return (
     <>
@@ -40,18 +69,30 @@ const Dashboard = () => {
             </div>
             <div className={styles.navBar}>
               <div className={styles.navBalanceContainer}>
-                <span className={styles.depositIcon}>
+                {/* <span className={styles.depositIcon}>
                   <button className={styles.icon} onClick={openDeposit}>
                     <MdOutlinePayments />
                   </button>
-                </span>
-                <div className={styles.navBalance}>
-                  <span className={styles.navAmount}>{balance.toFixed(2)}</span>
-                  <span className={styles.navCurrency}> INR</span>
-                </div>
+                </span> */}
+                <button
+                  className={styles.btnBalance}
+                  onClick={() => openWalletHistory("transactions")}
+                >
+                  <div className={styles.navBalance}>
+                    <span className={styles.navAmount}>
+                      {balance.toFixed(2)}
+                    </span>
+
+                    <span className={styles.navCurrency}> INR</span>
+                  </div>
+                </button>
               </div>
               <div className={styles.navToggler}>
-                <span className={styles.navToggleBtn} onClick={sidebarFunc}>
+                <span
+                  className={styles.navToggleBtn}
+                  onClick={() => setSidebar(!sidebar)}
+                  aria-label="Toggle Sidebar"
+                >
                   <FaBars />
                 </span>
               </div>
@@ -63,12 +104,15 @@ const Dashboard = () => {
                 className={classnames(styles.sidebar, {
                   [styles.sidebarOpen]: sidebar,
                 })}
+                ref={modalRef}
               >
                 <div className={styles.section1}>
                   <div className={styles.avatar}>
                     <img src={avatar} alt="avatar" />
                   </div>
-                  <span className={styles.username}>v***7</span>
+                  <span className={styles.username}>
+                    {user.phone.slice(0, 2)}***{user.phone.slice(-2)}
+                  </span>
                 </div>
                 <div className={styles.section2}>
                   <div className={styles.listMenu}>
@@ -165,43 +209,61 @@ const Dashboard = () => {
                 </div>
                 <div className={styles.section3}>
                   <div className={styles.listMenuItem}>
-                    <button className={styles.btnDeposit} onClick={openDeposit}>
+                    <button className={styles.btnItem} onClick={openDeposit}>
                       <div className={styles.title}>
                         <span className={styles.icon}>
                           <MdOutlinePayments />
                         </span>
-                        DEPOSIT FUNDS
+                        Deposit Funds
+                      </div>
+                    </button>
+                  </div>
+                  <div className={styles.listMenuItem}>
+                    <button className={styles.btnItem} onClick={openWithdraw}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <MdOutlinePayments />
+                        </span>
+                        Withdraw Funds
                       </div>
                     </button>
                   </div>
                   <div className={styles.listMenuItem}>
                     <button
-                      className={styles.btnWithdraw}
-                      onClick={openWithdraw}
+                      className={styles.btnItem}
+                      onClick={() => openWalletHistory("bets")}
                     >
                       <div className={styles.title}>
                         <span className={styles.icon}>
-                          <MdOutlinePayments />
+                          <FaHistory />
                         </span>
-                        WITHDRAW FUNDS
+                        Bet History
                       </div>
                     </button>
                   </div>
                   <div className={styles.listMenuItem}>
                     <div className={styles.title}>
                       <span className={styles.icon}>
-                        <MdOutlinePayments />
+                        <RiCustomerService2Fill />
                       </span>
-                      TRANSACTION HISTORY
+                      Contact Us
                     </div>
                   </div>
-                  <div className={styles.listMenuItem}>
-                    <div className={styles.title}>
-                      <span className={styles.icon}>
-                        <SiLevelsdotfyi />
-                      </span>
-                      LEVEL MANAGEMENT
-                    </div>
+                  <div
+                    className={styles.listMenuItem}
+                    style={{ justifyContent: "center" }}
+                  >
+                    <button
+                      className={styles.btnLogout}
+                      onClick={() => setLogoutShow(true)}
+                    >
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <ImExit />
+                        </span>
+                        LOGOUT
+                      </div>
+                    </button>
                   </div>
                 </div>
                 <div className={styles.section4}>
@@ -218,8 +280,28 @@ const Dashboard = () => {
             </div>
           )}
         </header>
-        {activePage === "deposit" && <Deposit onClose={closePage} />}
-        {activePage === "withdraw" && <Withdraw onClose={closePage} />}
+        {logoutShow && (
+          <div className={classnames(styles.logoutContainer, styles.visible)}>
+            <div className={styles.logoutContent}>
+              <h2>Are you sure you want to logout?</h2>
+              <button
+                className={styles.logoutButton}
+                onClick={handleLogoutButton}
+              >
+                Yes
+              </button>
+              <button
+                className={styles.cancelButton}
+                onClick={() => {
+                  setLogout(false), setLogoutShow(false);
+                }}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        )}
+
         {alerts.map((alert, index) => (
           <div
             key={alert.id}
@@ -266,6 +348,11 @@ const Dashboard = () => {
             </div>
           </div>
         </main>
+        {activePage === "deposit" && <Deposit onClose={closePage} />}
+        {activePage === "withdraw" && <Withdraw onClose={closePage} />}
+        {activePage === "walletHistory" && (
+          <WalletHistory onClose={closePage} />
+        )}
       </div>
     </>
   );

@@ -4,6 +4,7 @@ import planeImgSrc from "../assets/plane.png";
 import bgImgSrc from "../assets/bg-rotate.svg";
 import { useSoundContext } from "../context/SoundContext.jsx";
 import { EnginContext } from "../context/EnginContext.jsx";
+
 const loadImage = (src) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -100,8 +101,8 @@ const Canvas = () => {
     let direction = true;
     const isMobile = canvas.width < 500;
     const baseSpeed = isMobile ? 0.06 : 0.1;
-    const imgRotationSpeed = isMobile ? 0.03 : 0.04;
-    const loaderSpeed = isMobile ? 0.002 : 0.003;
+    const imgRotationSpeed = isMobile ? 0.04 : 0.04;
+    const loaderSpeed = isMobile ? 0.003 : 0.003;
     const planeScale = 0.5;
     const scale = Math.min(Math.max(canvas.width / 800, 0.6), 1.5);
     const scorefontSize = Math.max(70, canvas.width * 0.05);

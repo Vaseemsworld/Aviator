@@ -1,16 +1,47 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000", // Backend URL
-});
+const baseURL = "http://localhost:8000/";
+const api = axios.create({ baseURL });
 
-// Attach token to all requests if logged in
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(
+  async (config) => {
+    let access = localStorage.getItem("access");
+    let refresh = localStorage.getItem("refresh");
+
+    try {
+      if (access) {
+        const decoded = jwtDecode(access);
+        const now = Date.now() / 1000;
+
+        if (decoded.exp < now && refresh) {
+          const res = await axios.post(`${baseURL}/token/refresh/`, {
+            refresh,
+          });
+
+          access = res.data.access;
+          localStorage.setItem("access", access);
+
+          if (res.data.refresh) {
+            refresh = res.data.refresh;
+            localStorage.setItem("refresh", refresh);
+          }
+        }
+
+        config.headers.Authorization = `Bearer ${access}`;
+      }
+      return config;
+    } catch (err) {
+      console.error("Token refresh failed:", err);
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      window.location.href = "http://localhost:5173/";
+      return Promise.reject(err);
+    }
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export default api;

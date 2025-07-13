@@ -198,6 +198,9 @@ const EngineProvider = ({ children, initialBalance = 0 }) => {
       setType(null);
     }
   };
+  const openContactUs = () => {
+    console.log("called"), setActivePage("contact");
+  };
 
   const closePage = () => {
     setActivePage(null);
@@ -254,14 +257,14 @@ const EngineProvider = ({ children, initialBalance = 0 }) => {
 
       const res = await api.post(
         "/wallet/bet/",
-        { amount: parseFloat(amount), bet_key: betKey },
+        { amount: amt, bet_key: betKey },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       dispatchBet({
         type: ACTIONS.PLACE_BET,
         betKey,
-        payload: { amount: parseFloat(amount) },
+        payload: { amount: amt },
       });
       if (res.data?.balance !== undefined) {
         dispatchBet({
@@ -405,6 +408,7 @@ const EngineProvider = ({ children, initialBalance = 0 }) => {
         openDeposit,
         openWithdraw,
         openWalletHistory,
+        openContactUs,
       }}
     >
       {children}

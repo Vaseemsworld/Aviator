@@ -134,7 +134,7 @@ const WalletHistory = ({ onClose }) => {
           {type !== "bets" && (
             <>
               <h3>
-                Balance: <span>₹{balance}</span>
+                Total Balance: <span>₹{balance}</span>
               </h3>
               <div className={styles.actionBtns}>
                 <button className={styles.depositBtn} onClick={openDeposit}>

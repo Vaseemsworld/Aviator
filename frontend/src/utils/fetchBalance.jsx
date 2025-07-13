@@ -1,8 +1,9 @@
 import axios from "axios";
+import api from "../api";
 
 export const fetchBalance = async ({ token }) => {
   try {
-    const res = await axios.get("http://localhost:8000/wallet/balance/", {
+    const res = await api.get("/wallet/balance/", {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data.balance;

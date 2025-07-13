@@ -17,6 +17,7 @@ import InfoBoard from "./InfoBoard.jsx";
 import Deposit from "./Wallet/Deposit.jsx";
 import Withdraw from "./Wallet/Withdraw.jsx";
 import WalletHistory from "./Wallet/WalletHistory.jsx";
+import ContactUs from "./ContactUs.jsx";
 
 import { useSoundContext } from "../context/SoundContext.jsx";
 import { EnginContext } from "../context/EnginContext.jsx";
@@ -30,11 +31,12 @@ const Dashboard = () => {
     openDeposit,
     openWithdraw,
     openWalletHistory,
+    openContactUs,
   } = useContext(EnginContext);
   const { betState, alerts } = useContext(EnginContext);
   const [logoutShow, setLogoutShow] = useState(false);
   const [loggedout, setLogout] = useState(false);
-  const { user, logout, authLoading, isAuthenticated } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebar, setSidebar] = useState(false);
 
   const balance = betState.balance;
@@ -242,12 +244,14 @@ const Dashboard = () => {
                     </button>
                   </div>
                   <div className={styles.listMenuItem}>
-                    <div className={styles.title}>
-                      <span className={styles.icon}>
-                        <RiCustomerService2Fill />
-                      </span>
-                      Contact Us
-                    </div>
+                    <button className={styles.btnItem} onClick={openContactUs}>
+                      <div className={styles.title}>
+                        <span className={styles.icon}>
+                          <RiCustomerService2Fill />
+                        </span>
+                        Contact Us
+                      </div>
+                    </button>
                   </div>
                   <div
                     className={styles.listMenuItem}
@@ -353,6 +357,7 @@ const Dashboard = () => {
         {activePage === "walletHistory" && (
           <WalletHistory onClose={closePage} />
         )}
+        {activePage === "contact" && <ContactUs onClose={closePage} />}
       </div>
     </>
   );

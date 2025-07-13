@@ -37,6 +37,7 @@ const Wallet = ({ onClose, title, children }) => {
                 <i className={styles.icon}>
                   <IoMdArrowRoundBack />
                 </i>
+                Back
               </button>
               <div className={styles.icons}>
                 <button>

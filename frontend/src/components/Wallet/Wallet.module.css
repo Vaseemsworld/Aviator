@@ -25,11 +25,27 @@
   opacity: 0;
   transition: all 0.3s ease;
   overflow-y: auto;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
 }
+.overlay.show .modalPage {
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+
 .fadeInUp {
   transform: translateY(0);
   opacity: 1;
 }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .modalContainer {
   height: 100%;
   display: flex;
@@ -59,6 +75,13 @@ header {
   padding: 5px 0;
 }
 
+.button:focus,
+.tabButton:focus,
+.backButton:focus {
+  outline: 2px solid #ffcc00;
+  outline-offset: 2px;
+}
+
 .backButton {
   all: unset;
   cursor: pointer;
@@ -66,12 +89,12 @@ header {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  color: #bc9ebc;
+  color: #ffcc00;
   transition: color 0.3s ease;
 }
 
 .backButton:hover {
-  color: rgb(255, 255, 255);
+  color: #be9800;
 }
 .backButton .icon {
   margin: 0;
@@ -350,17 +373,31 @@ header {
 .actionBtns button {
   all: unset;
   cursor: pointer;
-  border: 2px solid rgb(0, 0, 0);
   border-radius: 5px;
   padding: 8px 20px;
   font-size: 20px;
   font-weight: bold;
 }
+.actionBtns button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
 .actionBtns .depositBtn {
   background-color: #28a909;
+  box-shadow: 0 4px 12px rgba(40, 169, 9, 0.4);
 }
+.actionBtns .depositBtn:hover {
+  box-shadow: 0 0 10px rgba(40, 169, 9, 0.6);
+}
+
+.actionBtns .withdrawBtn:hover {
+  box-shadow: 0 0 10px rgba(244, 67, 54, 0.6);
+}
+
 .actionBtns .withdrawBtn {
   background-color: #f44336;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
 .tabs {
   display: flex;
@@ -418,7 +455,7 @@ header {
 
 .amount {
   font-weight: bold;
-  margin-left: 10px;
+  margin: 0 5px 0 10px;
 }
 .amount.red {
   color: #dc3545;
@@ -454,17 +491,20 @@ header {
 }
 
 .pending {
-  background-color: #ff9800; /* orange */
+  background-color: #ff9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
   color: #fff;
 }
 
 .success {
-  background-color: #4caf50; /* green */
+  background-color: #4caf50;
+  box-shadow: 0 4px 12px rgba(40, 169, 9, 0.4);
   color: #fff;
 }
 
 .rejected {
-  background-color: #f44336; /* red */
+  background-color: #f44336;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
   color: #fff;
 }
 
@@ -478,5 +518,11 @@ header {
 @media (max-width: 768px) {
   .transactionList {
     font-size: 13px;
+  }
+}
+@media (max-width: 500px) {
+  .modalPage {
+    width: 90%;
+    padding: 16px;
   }
 }

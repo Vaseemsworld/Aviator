@@ -1,0 +1,106 @@
+.ContactUsModal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  color: #ffffff;
+}
+
+.section {
+  background-color: #2c2c2c;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.section h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #ffcc00;
+}
+
+.section p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.button {
+  display: inline-block;
+  background-color: #ff9800;
+  color: #000;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.button:hover {
+  background-color: #e68a00;
+  box-shadow: 0 0 14px rgba(255, 152, 0, 0.6);
+}
+
+.chatLinks {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chatButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.1s ease;
+  font-size: 16px;
+  border: none;
+}
+
+.chatButton[href*="wa.me"] {
+  color: #25d366;
+}
+.chatButton[href*="wa.me"] svg {
+  color: #25d366;
+  transition: color 0.3s ease;
+}
+
+.chatButton[href*="wa.me"]:hover {
+  background-color: #25d366;
+  color: #000;
+  box-shadow: 0 0 14px rgba(37, 211, 102, 0.5);
+}
+.chatButton[href*="wa.me"]:hover svg {
+  color: #000;
+}
+
+.chatButton[href*="t.me"] {
+  color: #0088cc;
+}
+.chatButton[href*="t.me"] svg {
+  color: #0088cc;
+  transition: color 0.3s ease;
+}
+
+.chatButton[href*="t.me"]:hover {
+  background-color: #0088cc;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(0, 136, 204, 0.5);
+}
+.chatButton[href*="t.me"]:hover svg {
+  color: #fff;
+}
+
+.chatButton:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
